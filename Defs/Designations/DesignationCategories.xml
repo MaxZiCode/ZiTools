@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <DesignationCategoryDef>
+    <defName>ZiTools</defName>
+    <label>ZiTools</label>
+    <order>9</order>
+    <specialDesignatorClasses>
+		<li>ZiTools.ObjectSeeker_Designator</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  
+  
+</Defs>
