@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8E5BBF4A-1DC4-421F-AB09-D9738E00D7C6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ZiTools_BetterMiniMap</RootNamespace>
+    <AssemblyName>ZiTools BetterMiniMap Addon</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\ZiTools BetterMiniMap Addon\Assemblies\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BetterMiniMap">
+      <HintPath>..\..\..\..\..\Steam\SteamApps\common\RimWorld\Mods\BetterMiniMap\Assemblies\BetterMiniMap.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ZiTools">
+      <HintPath>..\..\ZiTools\Assemblies\ZiTools.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DesignationOverlay.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StaticConstructor.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>@echo off
+SET "ProjectName=ZiTools BetterMiniMap Addon"
+SET "SolutionDir=F:\GitHub Repos\Rimworld\ZiTools\Source"
+@echo on
+
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Assemblies\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Assemblies\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Languages\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Languages\"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

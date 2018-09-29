@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1FE5966D-3C82-4E54-98AC-F782D302C963}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ZiTools</RootNamespace>
+    <AssemblyName>ZiTools</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\ZiTools\Assemblies\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MapMarksManager.cs" />
+    <Compile Include="ObjectSeeker_Designator.cs" />
+    <Compile Include="ObjectSeeker_Data.cs" />
+    <Compile Include="ObjectSeeker_Window.cs" />
+    <Compile Include="StaticConstructor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>@echo off
+SET "ProjectName=ZiTools"
+SET "SolutionDir=F:\GitHub Repos\Rimworld\ZiTools\Source"
+@echo on
+
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Assemblies\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Assemblies\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Defs\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Defs\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Textures\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Textures\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Languages\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Languages\"</PostBuildEvent>
+  </PropertyGroup>
+</Project>
