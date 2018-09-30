@@ -22,12 +22,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\ZiTools BetterMiniMap Addon\Assemblies\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -35,7 +36,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="BetterMiniMap">
-      <HintPath>..\..\..\..\..\Steam\SteamApps\common\RimWorld\Mods\BetterMiniMap\Assemblies\BetterMiniMap.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\BetterMiniMap.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -66,7 +67,6 @@ SET "SolutionDir=F:\GitHub Repos\Rimworld\ZiTools\Source"
 @echo on
 
 xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Assemblies\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Assemblies\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Languages\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Languages\"</PostBuildEvent>
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

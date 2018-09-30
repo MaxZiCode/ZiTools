@@ -47,7 +47,7 @@ namespace ZiTools
 			{
 				OSD_Global.ThingToSeek = string.Empty;
 				MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
-				UpdateAction();
+				UpdateAction?.Invoke();
 			}
 
 			float curY = updateButtonRect.yMax;
@@ -83,7 +83,7 @@ namespace ZiTools
 			Widgets.EndScrollView();
 		}
 
-		public static event Action UpdateAction;
+		public static event Action UpdateAction; // must be call by ?.Invoke()
 
 		public override Vector2 InitialSize { get => new Vector2(250f, 365f); }
 
@@ -101,7 +101,7 @@ namespace ZiTools
 				{
 					OSD_Global.ThingToSeek = label;
 					MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
-					UpdateAction();
+					UpdateAction?.Invoke();
 				}
 				Widgets.DrawHighlightIfMouseover(rectLabel);
 			}
@@ -119,7 +119,7 @@ namespace ZiTools
 		{
 			OSD_Global.FindAllThings();
 			MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
-			UpdateAction();
+			UpdateAction?.Invoke();
 		}
 	}
 }
