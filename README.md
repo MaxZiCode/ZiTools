@@ -4,6 +4,8 @@
 
 Contains various tools for better gameplay experience.
 
+[Ludeon forum page](https://ludeon.com/forums/index.php?topic=45972.0)
+
 ## Tools
 - Object seeker. Provides the window for searching any objects on the map.
 - BetterMiniMap addon. This addon provides extra overlays for above tools. Requires BetterMiniMap and ZiTools mods.
@@ -11,6 +13,8 @@ Contains various tools for better gameplay experience.
 ## Translations
 - English
 - Russian
+- German (by Prokho)
 
 ## Credits
 - Why_is_that for the excellent BetterMiniMap mod.
+- Prokho for the translation.
