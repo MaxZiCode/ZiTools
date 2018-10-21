@@ -54,7 +54,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="ZiTools">
-      <HintPath>..\ZiTools\obj\Debug\ZiTools.dll</HintPath>
+      <HintPath>..\..\ZiTools\Assemblies\ZiTools.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

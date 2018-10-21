@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 
 using Verse;
+using RimWorld;
 using Harmony;
+using UnityEngine;
 
 namespace ZiTools
 {
@@ -35,6 +37,16 @@ namespace ZiTools
 					ObjectSeeker_Window.Update();
 				}
 			}
+		}
+	}
+
+	[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls", MethodType.Normal)]
+	class Patch_DoPlaySettingsGlobalControls
+	{
+		static void Postfix(WidgetRow row, bool worldView)
+		{
+			if (!worldView && row.ButtonIcon(ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerDesc".Translate()))
+				ObjectSeeker_Window.DrawWindow();
 		}
 	}
 }

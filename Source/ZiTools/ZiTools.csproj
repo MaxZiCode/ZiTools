@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapMarksManager.cs" />
-    <Compile Include="ObjectSeeker_Designator.cs" />
     <Compile Include="ObjectSeeker_Data.cs" />
     <Compile Include="ObjectSeeker_Window.cs" />
     <Compile Include="StaticConstructor.cs" />

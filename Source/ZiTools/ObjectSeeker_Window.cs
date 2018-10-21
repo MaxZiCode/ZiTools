@@ -24,6 +24,7 @@ namespace ZiTools
 		public override void PreOpen()
 		{
 			base.PreOpen();
+			Clear();
 			Update();
 			OSD_Global.WindowIsOpen = true;
 		}

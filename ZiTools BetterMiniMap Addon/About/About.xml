@@ -2,6 +2,7 @@
 <ModMetaData>
   <name>ZiTools BetterMiniMap Addon</name>
   <author>MaxZiCode</author>
-  <description>Relates Zitools and BetterMiniMap mods.</description>
+  <url>https://ludeon.com/forums/index.php?topic=45972.0</url>
+  <description>Relates ZiTools and BetterMiniMap mods.</description>
   <targetVersion>1.0.0</targetVersion>
 </ModMetaData>
