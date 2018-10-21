@@ -3,12 +3,13 @@ using UnityEngine;
 using Verse;
 using RimWorld;
 
+using static ZiTools.StaticConstructor;
+
 namespace ZiTools
 {
 	public class ObjectSeeker_Window : Window
 	{
 		Vector2 ScrollPosition;
-		ObjectSeeker_Data OSD_Global;
 
 		public ObjectSeeker_Window() : base()
 		{
@@ -18,36 +19,33 @@ namespace ZiTools
 			this.preventCameraMotion = false;
 
 			this.ScrollPosition = new Vector2();
-			this.OSD_Global = StaticConstructor.OSD_Global;
 		}
 
 		public override void PreOpen()
 		{
 			base.PreOpen();
-			if (OSD_Global.LocationsDict.Count == 0 || OSD_Global.MapInProcess != Find.CurrentMap)
-				this.Update();
+			Update();
+			OSD_Global.WindowIsOpen = true;
 		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
 			Text.Font = GameFont.Medium;
-			Rect titleRect = new Rect(inRect){ height = Text.LineHeight + 7f };
+			Rect titleRect = new Rect(inRect) { height = Text.LineHeight + 7f };
 			Rect updateButtonRect = new Rect(titleRect.x, titleRect.yMax, titleRect.width / 2f - 2f, 20f);
 			Rect clearButtonRect = updateButtonRect;
 			clearButtonRect.x = updateButtonRect.xMax + 4f;
-			
+
 			Widgets.Label(titleRect, "ZiT_ObjectsSeekerLabel".Translate());
 			Text.Font = GameFont.Small;
 
 			if (Widgets.ButtonText(updateButtonRect, "ZiT_UpdateButtonLabel".Translate()))
 			{
-				this.Update();
+				Update();
 			}
 			if (Widgets.ButtonText(clearButtonRect, "ZiT_ClearButtonLabel".Translate()))
 			{
-				OSD_Global.ThingToSeek = string.Empty;
-				MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
-				UpdateAction?.Invoke();
+				Clear();
 			}
 
 			float curY = updateButtonRect.yMax;
@@ -63,13 +61,13 @@ namespace ZiTools
 				Widgets.Label(new Rect(titleRect) { y = curY }, "ZiT_NotFoundString".Translate(OSD_Global.SelectedCategoryName));
 				return;
 			}
-			Rect mainRect = new Rect(inRect){ yMin = curY };
+			Rect mainRect = new Rect(inRect) { yMin = curY };
 			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Count + 1) * Text.LineHeight);
 			curY = rect1.y;
 
 			Widgets.BeginScrollView(mainRect, ref ScrollPosition, rect1, true);
 			GUI.BeginGroup(rect1);
-			curY += this.GroupOfThingsMaker(rect1.x, curY, rect1.width, "ZiT_NameLabel".Translate(), OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), false);
+			curY += this.GroupOfThingsMaker(rect1.x, curY, rect1.width, "ZiT_NameLabel".Translate(), OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), false);
 
 			OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Sort();
 			if (OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses)
@@ -81,6 +79,13 @@ namespace ZiTools
 			}
 			GUI.EndGroup();
 			Widgets.EndScrollView();
+		}
+
+		public override void PreClose()
+		{
+			base.PreClose();
+			Clear();
+			OSD_Global.WindowIsOpen = false;
 		}
 
 		public static event Action UpdateAction; // must be call by ?.Invoke()
@@ -115,10 +120,17 @@ namespace ZiTools
 			return rectLabel.height;
 		}
 
-		void Update()
+		public static void Update()
 		{
 			OSD_Global.FindAllThings();
 			MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
+			UpdateAction?.Invoke();
+		}
+
+		void Clear()
+		{
+			OSD_Global.ThingToSeek = string.Empty;
+			MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
 			UpdateAction?.Invoke();
 		}
 	}

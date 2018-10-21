@@ -44,6 +44,8 @@ namespace ZiTools
 		public string ThingToSeek { get; set; }
 		public string SelectedCategoryName { get => _floatMenuCategoriesOpt[(int)SelectedCategory].Label; }
 
+		public bool WindowIsOpen { get; set; }
+
 		public CategoryOfObjects SelectedCategory { get; set; }
 
 		public void FindAllThings()

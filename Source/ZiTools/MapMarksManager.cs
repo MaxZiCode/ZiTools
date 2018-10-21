@@ -15,7 +15,7 @@ namespace ZiTools
 		public static void SetMarks(DesignationDef DesDef)
 		{
 			ObjectSeeker_Data OSD = StaticConstructor.OSD_Global;
-			if (OSD.MapInProcess == Find.CurrentMap && OSD.ThingToSeek != string.Empty && OSD.Positions.Count != 0)
+			if (OSD.ThingToSeek != string.Empty && OSD.Positions.Count != 0)
 			{
 				RemoveMarks(DesDef);
 				IntVec3 prevPos = new IntVec3();
@@ -38,6 +38,12 @@ namespace ZiTools
 			}
 		}
 
-		public static void RemoveMarks(DesignationDef DesDef) => Find.CurrentMap.designationManager.RemoveAllDesignationsOfDef(DesDef);
+		public static void RemoveMarks(DesignationDef DesDef)
+		{
+			foreach (Map map in Find.Maps)
+			{
+				map.designationManager.RemoveAllDesignationsOfDef(DesDef);
+			}
+		}
 	}
 }

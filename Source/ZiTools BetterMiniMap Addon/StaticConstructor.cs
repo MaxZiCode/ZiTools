@@ -8,37 +8,40 @@ using Verse;
 using Harmony;
 using BetterMiniMap;
 
+using static ZiTools.StaticConstructor;
+
 namespace ZiTools_BetterMiniMap
 {
 	[StaticConstructorOnStartup]
-    public class StaticConstructor
-    {
+	public static class StaticConstructor
+	{
 		static StaticConstructor()
 		{
-			
+
 			if (ModLister.AllInstalledMods.FirstOrDefault(m => m.Name == "BetterMiniMap")?.Active == true)
 			{
 				//DesignationOverlay desOv = new DesignationOverlay();
 				//OverlayManager.DefOverlays.Add(desOv);
 				//ZiTools.ObjectSeeker_Window.UpdateAction += delegate { desOv.Visible = true; };
 
-				var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.staticconstructor");
+				var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.addonconstructor");
 				harmony.PatchAll(Assembly.GetExecutingAssembly());
 			}
 		}
-	}
 
-	[HarmonyPatch(typeof(OverlayManager), MethodType.Constructor, new Type[] { typeof(Map) })]
-	class Patch
-	{
-		static void Postfix(OverlayManager __instance, Map map)
+		[HarmonyPatch(typeof(OverlayManager), MethodType.Constructor, new Type[] { typeof(Map) })]
+		class Patch_OVerlayManager
 		{
-			DesignationOverlay desOv = new DesignationOverlay(map);
-			__instance.DefOverlays.Add(desOv);
-			ZiTools.ObjectSeeker_Window.UpdateAction += delegate { desOv.Visible = true; };
+			static void Postfix(OverlayManager __instance, Map map)
+			{
+				DesignationOverlay desOv = new DesignationOverlay(map);
+				__instance.DefOverlays.Add(desOv);
+				ZiTools.ObjectSeeker_Window.UpdateAction += delegate
+				{ desOv.Visible = true; };
 #if DEBUG
-			Log.Message("Created the patch of an instance :" + __instance.GetType().ToString()); 
+				DebugMessage("Designation overlay has added by " + __instance.GetType().ToString());
 #endif
+			}
 		}
 	}
 }

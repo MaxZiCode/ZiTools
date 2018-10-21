@@ -31,6 +31,9 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
