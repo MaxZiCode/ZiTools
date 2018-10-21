@@ -11,20 +11,21 @@ namespace ZiTools_BetterMiniMap
 {
 	public class DesignationOverlay : MarkerOverlay
 	{
-		public DesignationOverlay(bool visible = true) : base(visible)
+		public DesignationOverlay(Map map, bool visible = true) : base(map, visible)
 		{
 			this.def = new OverlayDef();
 			def.defName = "ObjectSeeker_OverlayDef";
 			def.label = "ZiT_ObjectsSeekerLabel".Translate();
 			def.overlayClass = this.GetType();
 			def.priority = 100000;
+			this.map = map;
 		}
 
 		public override int GetUpdateInterval() => int.MaxValue;
 
 		public override void Render()
 		{
-			var marks = Find.CurrentMap.designationManager.allDesignations.FindAll(d => d.def.defName == "ObjectSeekerMark");
+			var marks = map.designationManager.allDesignations.FindAll(d => d.def.defName == "ObjectSeekerMark");
 			foreach (var des in marks)
 			{
 				base.CreateMarker(des.target.Cell, 4, UnityEngine.Color.magenta, BetterMiniMapSettings.FadedColor(UnityEngine.Color.magenta), 0.5f);

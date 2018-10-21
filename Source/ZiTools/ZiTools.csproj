@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -42,7 +42,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\UnityEngine.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

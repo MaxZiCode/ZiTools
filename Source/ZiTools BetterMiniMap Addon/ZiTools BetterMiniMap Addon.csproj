@@ -31,12 +31,15 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BetterMiniMap">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\BetterMiniMap.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\BetterMiniMap.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -46,11 +49,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\B19\UnityEngine.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ZiTools">
-      <HintPath>..\..\ZiTools\Assemblies\ZiTools.dll</HintPath>
+      <HintPath>..\ZiTools\obj\Debug\ZiTools.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
