@@ -32,7 +32,10 @@ namespace ZiTools
 		{
 			static void Postfix()
 			{
-				if (OSD_Global.WindowIsOpen)
+			    if (Current.ProgramState != ProgramState.Playing)
+			        OSD_Global.WindowIsOpen = false;
+
+                if (OSD_Global.WindowIsOpen)
 				{
 					ObjectSeeker_Window.Update();
 				}
