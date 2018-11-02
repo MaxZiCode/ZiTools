@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using Verse;
+using Verse.Profile;
 using RimWorld;
 using Harmony;
 using UnityEngine;
@@ -47,6 +48,15 @@ namespace ZiTools
 		{
 			if (!worldView && row.ButtonIcon(ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerDesc".Translate()))
 				ObjectSeeker_Window.DrawWindow();
+		}
+	}
+
+	[HarmonyPatch(typeof(MemoryUtility), "ClearAllMapsAndWorld", MethodType.Normal)]
+	class Patch_ClearAllMapsAndWorld
+	{
+		static void Postfix()
+		{
+			ObjectSeeker_Window.ClearUpdateAction();
 		}
 	}
 }

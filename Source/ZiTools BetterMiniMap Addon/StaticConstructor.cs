@@ -15,8 +15,6 @@ namespace ZiTools_BetterMiniMap
 	[StaticConstructorOnStartup]
 	public static class StaticConstructor
 	{
-	    public static DesignationOverlay desOv;
-
         static StaticConstructor()
 		{
 
@@ -36,10 +34,9 @@ namespace ZiTools_BetterMiniMap
 		{
 			static void Postfix(OverlayManager __instance, Map map)
 			{
-				desOv = new DesignationOverlay(map);
+				DesignationOverlay desOv = new DesignationOverlay(map);
 				__instance.DefOverlays.Add(desOv);
-				ZiTools.ObjectSeeker_Window.UpdateAction += delegate
-				{ desOv.Visible = true; };
+				ZiTools.ObjectSeeker_Window.SetUpdateAction(delegate { desOv.Visible = true; });
 #if DEBUG
 				DebugMessage("Designation overlay has added by " + __instance.GetType().ToString());
 #endif

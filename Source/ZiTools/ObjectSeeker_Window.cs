@@ -11,6 +11,8 @@ namespace ZiTools
 	{
 		Vector2 ScrollPosition;
 
+		static Action UpdateAction = delegate { };
+
 		public ObjectSeeker_Window() : base()
 		{
 			this.doCloseX = true;
@@ -89,7 +91,9 @@ namespace ZiTools
 			OSD_Global.WindowIsOpen = false;
 		}
 
-		public static event Action UpdateAction; // must be call by ?.Invoke()
+		public static void SetUpdateAction(Action action) => UpdateAction += action;
+
+		public static void ClearUpdateAction() => UpdateAction = delegate { };
 
 		public override Vector2 InitialSize { get => new Vector2(250f, 365f); }
 
@@ -107,7 +111,7 @@ namespace ZiTools
 				{
 					OSD_Global.ThingToSeek = label;
 					MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
-					UpdateAction?.Invoke();
+					UpdateAction();
 				}
 				Widgets.DrawHighlightIfMouseover(rectLabel);
 			}
@@ -125,14 +129,14 @@ namespace ZiTools
 		{
 			OSD_Global.FindAllThings();
 			MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
-			UpdateAction?.Invoke();
+			UpdateAction();
 		}
 
 		void Clear()
 		{
 			OSD_Global.ThingToSeek = string.Empty;
 			MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
-			UpdateAction?.Invoke();
+			UpdateAction();
 		}
 	}
 }
