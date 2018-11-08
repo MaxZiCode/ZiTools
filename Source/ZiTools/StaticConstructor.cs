@@ -33,30 +33,37 @@ namespace ZiTools
 		{
 			static void Postfix()
 			{
-                if (OSD_Global.WindowIsOpen && Current.ProgramState == ProgramState.Playing)
+				if (OSD_Global.WindowIsOpen && Current.ProgramState == ProgramState.Playing)
 				{
 					ObjectSeeker_Window.Update();
 				}
 			}
 		}
-	}
 
-	[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls", MethodType.Normal)]
-	class Patch_DoPlaySettingsGlobalControls
-	{
-		static void Postfix(WidgetRow row, bool worldView)
+		[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls", MethodType.Normal)]
+		class Patch_DoPlaySettingsGlobalControls
 		{
-			if (!worldView && row.ButtonIcon(ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerDesc".Translate()))
-				ObjectSeeker_Window.DrawWindow();
+			static void Postfix(WidgetRow row, bool worldView)
+			{
+				if (!worldView)
+				{
+					bool isSelected = OSD_Global.WindowIsOpen;
+					row.ToggleableIcon(ref isSelected, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerDesc".Translate(), SoundDefOf.Mouseover_ButtonToggle);
+					if (isSelected && !OSD_Global.WindowIsOpen)
+					{
+						ObjectSeeker_Window.DrawWindow();
+					}
+				}
+			}
 		}
-	}
 
-	[HarmonyPatch(typeof(MemoryUtility), "ClearAllMapsAndWorld", MethodType.Normal)]
-	class Patch_ClearAllMapsAndWorld
-	{
-		static void Postfix()
+		[HarmonyPatch(typeof(MemoryUtility), "ClearAllMapsAndWorld", MethodType.Normal)]
+		class Patch_ClearAllMapsAndWorld
 		{
-			ObjectSeeker_Window.ClearUpdateAction();
+			static void Postfix()
+			{
+				ObjectSeeker_Window.ClearUpdateAction();
+			}
 		}
 	}
 }

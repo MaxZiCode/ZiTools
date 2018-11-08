@@ -1,48 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using System.Diagnostics;
 using UnityEngine;
 using Verse;
 using RimWorld;
+
+using static ZiTools.StaticConstructor;
 
 namespace ZiTools
 {
 	public class ObjectSeeker_Data : IComparer<string>
 	{
-		readonly List<FloatMenuOption> _floatMenuCategoriesOpt;
-
 		public ObjectSeeker_Data()
 		{
 			LocationsDict = new Dictionary<string, List<IntVec3>> { { String.Empty, new List<IntVec3>() } };
+			BuildableDefDict = new Dictionary<string, BuildableDef>();
 			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>();
 			CorpsesTimeRemainDict = new Dictionary<string, int>();
 			ThingToSeek = string.Empty;
-			SelectedCategory = CategoryOfObjects.Buildings;
+			SelectedCategory = CategoryOfObjects.All;
 			MapInProcess = Find.CurrentMap;
-
-			_floatMenuCategoriesOpt = new List<FloatMenuOption>()
-				{
-					new FloatMenuOption("ZiT_BuildingCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Buildings; }),
-					new FloatMenuOption("ZiT_TerrainCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Terrains; }),
-					new FloatMenuOption("ZiT_PlantCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Plants; }),
-					new FloatMenuOption("ZiT_PawnsCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Pawns; }),
-					new FloatMenuOption("ZiT_СorpsesCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Corpses; }),
-					new FloatMenuOption("ZiT_OtherCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Other; })
-				};
 		}
 
 		public List<IntVec3> Positions { get => LocationsDict[ThingToSeek]; }
 
+		readonly Dictionary<CategoryOfObjects, string> _namesOfCategories = new Dictionary<CategoryOfObjects, string>
+		{
+			{ CategoryOfObjects.Favorites, "ZiT_FavoritesCategoryLabel".Translate() },
+			{ CategoryOfObjects.All, "ZiT_AllCategoryLabel".Translate() },
+			{ CategoryOfObjects.Buildings, "ZiT_BuildingCategoryLabel".Translate() },
+			{ CategoryOfObjects.Terrains, "ZiT_TerrainCategoryLabel".Translate() },
+			{ CategoryOfObjects.Plants, "ZiT_PlantCategoryLabel".Translate() },
+			{ CategoryOfObjects.Pawns, "ZiT_PawnsCategoryLabel".Translate() },
+			{ CategoryOfObjects.Corpses, "ZiT_СorpsesCategoryLabel".Translate() },
+			{ CategoryOfObjects.Other, "ZiT_OtherCategoryLabel".Translate() }
+		};
 		public Dictionary<string, List<IntVec3>> LocationsDict { get; set; }
+		public Dictionary<string, BuildableDef> BuildableDefDict { get; set; }
 		public Dictionary<CategoryOfObjects, List<string>> CategoriesDict { get; set; }
 		public Dictionary<string, int> CorpsesTimeRemainDict { get; set; }
 
 		public Map MapInProcess { get; set; }
 
-		public FloatMenu CategoryMenu { get => new FloatMenu(_floatMenuCategoriesOpt); }
-
 		public string ThingToSeek { get; set; }
-		public string SelectedCategoryName { get => _floatMenuCategoriesOpt[(int)SelectedCategory].Label; }
+		public string SelectedCategoryName { get => _namesOfCategories[SelectedCategory]; }
 
 		public bool WindowIsOpen { get; set; }
 
@@ -50,6 +53,9 @@ namespace ZiTools
 
 		public void FindAllThings()
 		{
+#if DEBUG
+			Stopwatch sw = Stopwatch.StartNew(); 
+#endif
 			this.MapInProcess = Find.CurrentMap;
 
 			CategoriesDict.Clear();
@@ -61,7 +67,8 @@ namespace ZiTools
 			{
 				if (MapInProcess.fogGrid.IsFogged(location))
 					continue;
-				FillData<TerrainDef>(location, location.GetTerrain(MapInProcess).label, CategoryOfObjects.Terrains);
+				TerrainDef ter = location.GetTerrain(MapInProcess);
+				FillData<TerrainDef>(location, ter.label, CategoryOfObjects.Terrains, def: ter);
 				List<Thing> allThingsOnLocation = location.GetThingList(MapInProcess);
 				if (allThingsOnLocation.Count > 0)
 				{
@@ -99,9 +106,13 @@ namespace ZiTools
 			}
 			if (!this.LocationsDict.ContainsKey(this.ThingToSeek))
 				this.ThingToSeek = string.Empty;
+#if DEBUG
+			sw.Stop();
+			DebugMessage($"Object Seeker has filled data for {sw.ElapsedMilliseconds} ms"); 
+#endif
 		}
 
-		private bool FillData<T>(IntVec3 location, string label, CategoryOfObjects category, Thing currentThing = null)
+		private bool FillData<T>(IntVec3 location, string label, CategoryOfObjects category, Thing currentThing = null, BuildableDef def = null)
 		{
 			if (currentThing is T || currentThing == null)
 			{
@@ -117,6 +128,11 @@ namespace ZiTools
 					LocationsDict[label].Add(location);
 				else
 					LocationsDict.Add(label, new List<IntVec3>(new IntVec3[] { location }));
+
+				if (def == null)
+					def = currentThing.def;
+				if (!BuildableDefDict.ContainsKey(label))
+					BuildableDefDict.Add(label, def);
 				return true;
 			}
 			else
@@ -135,6 +151,8 @@ namespace ZiTools
 
 		public enum CategoryOfObjects
 		{
+			Favorites,
+			All,
 			Buildings,
 			Terrains,
 			Plants,
