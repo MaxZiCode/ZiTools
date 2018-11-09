@@ -76,7 +76,7 @@ namespace ZiTools
 						if (FillData<Corpse>(location, label, CategoryOfObjects.Corpses, currentThing))
 						{
 							CompRottable comp = ((Corpse)currentThing).GetComp<CompRottable>();
-							int currentTicksRemain = Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
+							int currentTicksRemain = comp == null ? 0 : Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
 							currentTicksRemain = currentTicksRemain > 0 ? currentTicksRemain : 0;
 							if (CorpsesTimeRemainDict.ContainsKey(label))
 							{
