@@ -11,7 +11,7 @@ namespace ZiTools
 	public class ObjectSeeker_Window : Window
 	{
 		Vector2 ScrollPosition;
-		string text;
+		string _text;
 
 		static Action UpdateAction = delegate { };
 
@@ -33,18 +33,18 @@ namespace ZiTools
 			base.PreOpen();
 			Clear();
 			Update();
-			OSD_Global.WindowIsOpen = true;
 		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
+			float textFieldH = 35f, sqSize = 50f, lightRectGap = 10f, buttonX = inRect.xMax - 2f * (lightRectGap + sqSize);
 			Text.Font = GameFont.Medium;
 			Rect titleRect = new Rect(inRect) { height = Text.LineHeight + 7f };
-			Rect textFieldRect = new Rect(titleRect.x, titleRect.yMax, 150f, 35f);
-			Rect updateButtonRect = new Rect(textFieldRect.xMax + 2f, textFieldRect.y, textFieldRect.height, textFieldRect.height);
+			Rect textFieldRect = new Rect(titleRect.x, titleRect.yMax, buttonX - textFieldH - 5f, textFieldH);
+			Rect updateButtonRect = new Rect(textFieldRect.xMax + 2f, textFieldRect.y, textFieldH, textFieldH);
 
 			Widgets.Label(titleRect, "ZiT_ObjectsSeekerLabel".Translate());
-			text = Widgets.TextField(textFieldRect, text);
+			_text = Widgets.TextField(textFieldRect, _text);
 			if (Widgets.ButtonImageWithBG(updateButtonRect, ContentFinder<Texture2D>.Get("UI/Update Button", true)))
 			{
 				Update();
@@ -53,34 +53,33 @@ namespace ZiTools
 			TooltipHandler.TipRegion(updateButtonRect, "ZiT_UpdateButtonLabel".Translate());
 			MouseoverSounds.DoRegion(updateButtonRect, SoundDefOf.Mouseover_Category);
 			Text.Font = GameFont.Small;
-
-			float sqSize = 50f, lightRectGap = 10f, buttonX = inRect.xMax - 2f * (lightRectGap + sqSize);
+			
 			Rect lightRect = new Rect(buttonX, inRect.yMax - sqSize * 4f, lightRectGap, sqSize);
 			Rect selectButtonRect = new Rect(lightRect.xMax, lightRect.y, sqSize, sqSize);
 			Vector2 categorySize = Text.CalcSize(OSD_Global.SelectedCategoryName);
-			Widgets.Label(new Rect(lightRect.x + (inRect.xMax - lightRect.x - categorySize.x) / 2f, lightRect.y - categorySize.y, categorySize.x, categorySize.y), OSD_Global.SelectedCategoryName);
+			Widgets.Label(new Rect(lightRect.x + (inRect.xMax - lightRect.x - categorySize.x) / 2f, (lightRect.y - categorySize.y) / 2f, categorySize.x, categorySize.y), OSD_Global.SelectedCategoryName);
 			for (int i = 0; i < 8; i++)
 			{
-				for (int n = i++; n < i + 2; n++)
+				ObjectSeeker_Data.CategoryOfObjects currentCategory = (ObjectSeeker_Data.CategoryOfObjects)Enum.Parse(typeof(ObjectSeeker_Data.CategoryOfObjects), i.ToString());
+				Widgets.DrawWindowBackground(lightRect);
+				if (Widgets.ButtonImage(selectButtonRect, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true)))
 				{
-					ObjectSeeker_Data.CategoryOfObjects currentCategory = (ObjectSeeker_Data.CategoryOfObjects)Enum.Parse(typeof(ObjectSeeker_Data.CategoryOfObjects), n.ToString());
-					Widgets.DrawWindowBackground(lightRect);
-					if (Widgets.ButtonImage(selectButtonRect, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true)))
-					{
-						OSD_Global.SelectedCategory = currentCategory;
-						SoundDefOf.Click.PlayOneShotOnCamera();
-					}
-					MouseoverSounds.DoRegion(selectButtonRect, SoundDefOf.Mouseover_Category);
-					if (OSD_Global.SelectedCategory == currentCategory)
-						Widgets.DrawHighlightSelected(lightRect);
-					TooltipHandler.TipRegion(selectButtonRect, OSD_Global.SelectedCategoryName);
-					lightRect.x = selectButtonRect.xMax;
-					selectButtonRect.x = lightRect.xMax;
+					OSD_Global.SelectedCategory = currentCategory;
+					SoundDefOf.Click.PlayOneShotOnCamera();
 				}
-				lightRect.y += sqSize;
-				lightRect.x = buttonX;
-				selectButtonRect.y += sqSize;
+				MouseoverSounds.DoRegion(selectButtonRect, SoundDefOf.Mouseover_Category);
+				if (OSD_Global.SelectedCategory == currentCategory)
+					Widgets.DrawHighlightSelected(lightRect);
+				TooltipHandler.TipRegion(selectButtonRect, OSD_Global.NamesOfCategoriesDict[currentCategory]);
+				lightRect.x = selectButtonRect.xMax;
 				selectButtonRect.x = lightRect.xMax;
+				if (i % 2 == 1)
+				{
+					lightRect.y += sqSize;
+					lightRect.x = buttonX;
+					selectButtonRect.y += sqSize;
+					selectButtonRect.x = lightRect.xMax; 
+				}
 			}
 
 			float curY = textFieldRect.yMax;
@@ -91,7 +90,10 @@ namespace ZiTools
 				return;
 			}
 
-			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Count + 1) * Text.LineHeight);
+			float objCount = string.IsNullOrEmpty(_text) ?
+				OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Count :
+				(OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].FindAll(i => i.Contains(_text.ToLower()))).Count;
+			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (objCount + 1) * Text.LineHeight);
 			curY = rect1.y;
 			Widgets.BeginScrollView(mainRect, ref ScrollPosition, rect1, true);
 			GUI.BeginGroup(rect1);
@@ -102,8 +104,15 @@ namespace ZiTools
 				OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Sort(OSD_Global);
 			foreach (string currentName in OSD_Global.CategoriesDict[OSD_Global.SelectedCategory])
 			{
-				string param = OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ? (OSD_Global.CorpsesTimeRemainDict[currentName] > 0 ? OSD_Global.CorpsesTimeRemainDict[currentName].ToStringTicksToDays() : "-") : OSD_Global.LocationsDict[currentName]?.Count.ToString();
-				curY += this.GroupOfThingsMaker(rect1.x, curY, rect1.width, currentName, param);
+				if (string.IsNullOrEmpty(_text) || currentName.Contains(_text.ToLower()))
+				{
+					string param = OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ?
+								(OSD_Global.CorpsesTimeRemainDict[currentName] > 0 ?
+								OSD_Global.CorpsesTimeRemainDict[currentName].ToStringTicksToDays() :
+								"-") :
+								OSD_Global.LocationsDict[currentName]?.Count.ToString();
+					curY += this.GroupOfThingsMaker(rect1.x, curY, rect1.width, currentName, param);
+				}
 			}
 			GUI.EndGroup();
 			Widgets.EndScrollView();
@@ -113,7 +122,6 @@ namespace ZiTools
 		{
 			base.PreClose();
 			Clear();
-			OSD_Global.WindowIsOpen = false;
 		}
 
 		public static void SetUpdateAction(Action action) => UpdateAction += action;
@@ -129,19 +137,37 @@ namespace ZiTools
 			Rect rectLabel = new Rect(x, y, width, Text.LineHeight);
 			Rect rectImage = new Rect(x, y, Text.LineHeight, Text.LineHeight);
 			rectLabel.xMin = rectImage.xMax + 2f;
-			if (label == OSD_Global.ThingToSeek)
-				Widgets.DrawHighlightSelected(rectLabel);
 			if (createFindButton)
 			{
-				Widgets.ThingIcon (rectImage, (ThingDef) OSD_Global?.BuildableDefDict[label]);
+				if (OSD_Global.ThingsDict[label] != null)
+					Widgets.ThingIcon(rectImage, OSD_Global.ThingsDict[label]);
+				else if (OSD_Global.TerrainDefDict.ContainsKey(label) && OSD_Global.TerrainDefDict?[label] != null)
+				{
+					Designator_Build desBuild = new Designator_Build(OSD_Global.TerrainDefDict[label]);
+					GUI.color = desBuild.IconDrawColor;
+					Widgets.DrawTextureFitted(rectImage, desBuild.icon, 1f, Vector2.one, desBuild.iconTexCoords, desBuild.iconAngle);
+					GUI.color = Color.white;
+				}
+
+				if (label == OSD_Global.ThingToSeek)
+					Widgets.DrawHighlightSelected(rectLabel);
 				if (Widgets.ButtonInvisible(rectLabel))
 				{
-					OSD_Global.ThingToSeek = label;
-					MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
-					UpdateAction();
-					SoundDefOf.Designate_PlanAdd.PlayOneShotOnCamera();
+					if (OSD_Global.ThingToSeek != label)
+					{
+						OSD_Global.ThingToSeek = label;
+						MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef);
+						UpdateAction();
+						SoundDefOf.Designate_PlanAdd.PlayOneShotOnCamera(); 
+					}
+					else
+					{
+						Clear();
+						SoundDefOf.Designate_PlanRemove.PlayOneShotOnCamera();
+					}
 #if DEBUG
-					DebugMessage(OSD_Global.BuildableDefDict[label].LabelCap);
+					if (OSD_Global.ThingsDict[label] != null)
+						DebugMessage(OSD_Global.ThingsDict[label].LabelCap);
 #endif
 				}
 				else

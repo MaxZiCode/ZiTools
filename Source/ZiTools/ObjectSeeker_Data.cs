@@ -16,17 +16,18 @@ namespace ZiTools
 		public ObjectSeeker_Data()
 		{
 			LocationsDict = new Dictionary<string, List<IntVec3>> { { String.Empty, new List<IntVec3>() } };
-			BuildableDefDict = new Dictionary<string, BuildableDef>();
+			ThingsDict = new Dictionary<string, Thing>();
 			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>();
 			CorpsesTimeRemainDict = new Dictionary<string, int>();
+			TerrainDefDict = new Dictionary<string, TerrainDef>();
 			ThingToSeek = string.Empty;
-			SelectedCategory = CategoryOfObjects.All;
+			SelectedCategory = CategoryOfObjects.Favorites;
 			MapInProcess = Find.CurrentMap;
 		}
 
 		public List<IntVec3> Positions { get => LocationsDict[ThingToSeek]; }
 
-		readonly Dictionary<CategoryOfObjects, string> _namesOfCategories = new Dictionary<CategoryOfObjects, string>
+		public readonly Dictionary<CategoryOfObjects, string> NamesOfCategoriesDict = new Dictionary<CategoryOfObjects, string>
 		{
 			{ CategoryOfObjects.Favorites, "ZiT_FavoritesCategoryLabel".Translate() },
 			{ CategoryOfObjects.All, "ZiT_AllCategoryLabel".Translate() },
@@ -38,17 +39,16 @@ namespace ZiTools
 			{ CategoryOfObjects.Other, "ZiT_OtherCategoryLabel".Translate() }
 		};
 		public Dictionary<string, List<IntVec3>> LocationsDict { get; set; }
-		public Dictionary<string, BuildableDef> BuildableDefDict { get; set; }
+		public Dictionary<string, Thing> ThingsDict { get; set; }
+		public Dictionary<string, TerrainDef> TerrainDefDict { get; set; }
 		public Dictionary<CategoryOfObjects, List<string>> CategoriesDict { get; set; }
 		public Dictionary<string, int> CorpsesTimeRemainDict { get; set; }
 
 		public Map MapInProcess { get; set; }
 
 		public string ThingToSeek { get; set; }
-		public string SelectedCategoryName { get => _namesOfCategories[SelectedCategory]; }
-
-		public bool WindowIsOpen { get; set; }
-
+		public string SelectedCategoryName { get => NamesOfCategoriesDict[SelectedCategory]; }
+		
 		public CategoryOfObjects SelectedCategory { get; set; }
 
 		public void FindAllThings()
@@ -68,7 +68,9 @@ namespace ZiTools
 				if (MapInProcess.fogGrid.IsFogged(location))
 					continue;
 				TerrainDef ter = location.GetTerrain(MapInProcess);
-				FillData<TerrainDef>(location, ter.label, CategoryOfObjects.Terrains, def: ter);
+				FillData<TerrainDef>(location, ter.label, CategoryOfObjects.Terrains);
+				if (!TerrainDefDict.ContainsKey(ter.label))
+					TerrainDefDict.Add(ter.label, ter);
 				List<Thing> allThingsOnLocation = location.GetThingList(MapInProcess);
 				if (allThingsOnLocation.Count > 0)
 				{
@@ -104,6 +106,12 @@ namespace ZiTools
 					}
 				}
 			}
+			CategoriesDict.Add(CategoryOfObjects.All, new List<string>());
+			var AllObjects = (from k in CategoriesDict.Keys where k != CategoryOfObjects.All && k != CategoryOfObjects.Favorites select CategoriesDict[k]);
+			foreach (var list in AllObjects)
+			{
+				CategoriesDict[CategoryOfObjects.All].AddRange(list);
+			}
 			if (!this.LocationsDict.ContainsKey(this.ThingToSeek))
 				this.ThingToSeek = string.Empty;
 #if DEBUG
@@ -112,7 +120,7 @@ namespace ZiTools
 #endif
 		}
 
-		private bool FillData<T>(IntVec3 location, string label, CategoryOfObjects category, Thing currentThing = null, BuildableDef def = null)
+		private bool FillData<T>(IntVec3 location, string label, CategoryOfObjects category, Thing currentThing = null)
 		{
 			if (currentThing is T || currentThing == null)
 			{
@@ -128,11 +136,9 @@ namespace ZiTools
 					LocationsDict[label].Add(location);
 				else
 					LocationsDict.Add(label, new List<IntVec3>(new IntVec3[] { location }));
-
-				if (def == null)
-					def = currentThing.def;
-				if (!BuildableDefDict.ContainsKey(label))
-					BuildableDefDict.Add(label, def);
+				
+				if (!ThingsDict.ContainsKey(label))
+					ThingsDict.Add(label, currentThing);
 				return true;
 			}
 			else

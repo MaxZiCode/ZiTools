@@ -33,7 +33,7 @@ namespace ZiTools
 		{
 			static void Postfix()
 			{
-				if (OSD_Global.WindowIsOpen && Current.ProgramState == ProgramState.Playing)
+				if (Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)) && Current.ProgramState == ProgramState.Playing)
 				{
 					ObjectSeeker_Window.Update();
 				}
@@ -47,11 +47,14 @@ namespace ZiTools
 			{
 				if (!worldView)
 				{
-					bool isSelected = OSD_Global.WindowIsOpen;
+					bool isSelected = Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window));
 					row.ToggleableIcon(ref isSelected, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerDesc".Translate(), SoundDefOf.Mouseover_ButtonToggle);
-					if (isSelected && !OSD_Global.WindowIsOpen)
+					if (isSelected != Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)))
 					{
-						ObjectSeeker_Window.DrawWindow();
+						if (!Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)))
+							ObjectSeeker_Window.DrawWindow();
+						else
+							Find.WindowStack.TryRemove(typeof(ObjectSeeker_Window), false);
 					}
 				}
 			}
