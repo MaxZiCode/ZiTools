@@ -11,13 +11,16 @@ using static ZiTools.StaticConstructor;
 
 namespace ZiTools
 {
-	public class ObjectSeeker_Data : IComparer<string>
+	public class ObjectSeeker_Data : IComparer<string>, IExposable
 	{
 		public ObjectSeeker_Data()
 		{
 			LocationsDict = new Dictionary<string, List<IntVec3>> { { String.Empty, new List<IntVec3>() } };
 			ThingsDict = new Dictionary<string, Thing>();
-			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>();
+			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>
+			{
+				{ CategoryOfObjects.Favorites, new List<string>() }
+			};
 			CorpsesTimeRemainDict = new Dictionary<string, int>();
 			TerrainDefDict = new Dictionary<string, TerrainDef>();
 			ThingToSeek = string.Empty;
@@ -54,14 +57,16 @@ namespace ZiTools
 		public void FindAllThings()
 		{
 #if DEBUG
-			Stopwatch sw = Stopwatch.StartNew(); 
+			Stopwatch sw = Stopwatch.StartNew();
 #endif
 			this.MapInProcess = Find.CurrentMap;
 
-			CategoriesDict.Clear();
 			CorpsesTimeRemainDict.Clear();
 			LocationsDict.Clear();
 			LocationsDict.Add(String.Empty, new List<IntVec3>());
+			List<string> favourites = CategoriesDict[CategoryOfObjects.Favorites];
+			CategoriesDict.Clear();
+			CategoriesDict.Add(CategoryOfObjects.Favorites, favourites);
 
 			foreach (IntVec3 location in MapInProcess.AllCells)
 			{
@@ -85,7 +90,7 @@ namespace ZiTools
 						if (FillData<Corpse>(location, label, CategoryOfObjects.Corpses, currentThing))
 						{
 							CompRottable comp = ((Corpse)currentThing).GetComp<CompRottable>();
-							int currentTicksRemain = Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
+							int currentTicksRemain = comp == null ? 0 : Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
 							currentTicksRemain = currentTicksRemain > 0 ? currentTicksRemain : 0;
 							if (CorpsesTimeRemainDict.ContainsKey(label))
 							{
@@ -153,6 +158,13 @@ namespace ZiTools
 				return 1;
 			else
 				return 0;
+		}
+
+		public void ExposeData()
+		{
+			List<string> fav = CategoriesDict[CategoryOfObjects.Favorites];
+			Scribe_Collections.Look<string>(ref fav, "ObjectSeeker_favourites");
+			CategoriesDict[CategoryOfObjects.Favorites] = fav;
 		}
 
 		public enum CategoryOfObjects

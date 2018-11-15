@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -84,7 +85,7 @@ namespace ZiTools
 
 			float curY = textFieldRect.yMax;
 			Rect mainRect = new Rect(inRect) { yMin = curY, xMax = lightRect.x };
-			if (!OSD_Global.CategoriesDict.ContainsKey(OSD_Global.SelectedCategory))
+			if (!OSD_Global.CategoriesDict.ContainsKey(OSD_Global.SelectedCategory) || OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Count == 0)
 			{
 				Widgets.Label(mainRect, "ZiT_NotFoundString".Translate(OSD_Global.SelectedCategoryName));
 				return;
@@ -134,8 +135,9 @@ namespace ZiTools
 
 		float GroupOfThingsMaker(float x, float y, float width, string label, string param, bool createFindButton = true)
 		{
-			Rect rectLabel = new Rect(x, y, width, Text.LineHeight);
 			Rect rectImage = new Rect(x, y, Text.LineHeight, Text.LineHeight);
+			Rect rectLabel = new Rect(x, y, width - Text.LineHeight, Text.LineHeight) { xMin = rectImage.xMax + 2f };
+			Rect rectFavButton = new Rect(rectLabel.xMax, y, Text.LineHeight, Text.LineHeight);
 			rectLabel.xMin = rectImage.xMax + 2f;
 			if (createFindButton)
 			{
@@ -151,6 +153,8 @@ namespace ZiTools
 
 				if (label == OSD_Global.ThingToSeek)
 					Widgets.DrawHighlightSelected(rectLabel);
+				else
+					Widgets.DrawHighlightIfMouseover(rectLabel);
 				if (Widgets.ButtonInvisible(rectLabel))
 				{
 					if (OSD_Global.ThingToSeek != label)
@@ -170,8 +174,15 @@ namespace ZiTools
 						DebugMessage(OSD_Global.ThingsDict[label].LabelCap);
 #endif
 				}
-				else
-					Widgets.DrawHighlightIfMouseover(rectLabel);
+
+				if (Widgets.ButtonInvisible(rectFavButton))
+				{
+					List<string> list = OSD_Global.CategoriesDict[ObjectSeeker_Data.CategoryOfObjects.Favorites];
+					if (!list.Contains(label))
+						list.Add(label);
+					else
+						list.Remove(label);
+				}
 			}
 			TooltipHandler.TipRegion(rectLabel, label);
 			Rect rectParam = new Rect(width - Text.CalcSize(param).x, y, Text.CalcSize(param).x, Text.LineHeight);
@@ -190,7 +201,7 @@ namespace ZiTools
 			UpdateAction();
 		}
 
-		void Clear()
+		public static void Clear()
 		{
 			OSD_Global.ThingToSeek = string.Empty;
 			MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
