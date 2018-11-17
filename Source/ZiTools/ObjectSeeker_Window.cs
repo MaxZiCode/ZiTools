@@ -63,7 +63,7 @@ namespace ZiTools
 			{
 				ObjectSeeker_Data.CategoryOfObjects currentCategory = (ObjectSeeker_Data.CategoryOfObjects)Enum.Parse(typeof(ObjectSeeker_Data.CategoryOfObjects), i.ToString());
 				Widgets.DrawWindowBackground(lightRect);
-				if (Widgets.ButtonImage(selectButtonRect, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true)))
+				if (Widgets.ButtonImage(selectButtonRect, OSD_Global.TexturesOfCategoriesDict[currentCategory]))
 				{
 					OSD_Global.SelectedCategory = currentCategory;
 					SoundDefOf.Click.PlayOneShotOnCamera();
@@ -96,10 +96,11 @@ namespace ZiTools
 				(OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].FindAll(i => i.Contains(_text.ToLower()))).Count;
 			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (objCount + 1) * Text.LineHeight);
 			curY = rect1.y;
+
 			Widgets.BeginScrollView(mainRect, ref ScrollPosition, rect1, true);
 			GUI.BeginGroup(rect1);
-			curY += this.GroupOfThingsMaker(rect1.x, curY, rect1.width, "ZiT_NameLabel".Translate(), OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), false);
-
+			string favChange = null;
+			curY += this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, Text.LineHeight), "ZiT_NameLabel".Translate(), OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), ref favChange, false);
 			OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Sort();
 			if (OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses)
 				OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Sort(OSD_Global);
@@ -112,8 +113,16 @@ namespace ZiTools
 								OSD_Global.CorpsesTimeRemainDict[currentName].ToStringTicksToDays() :
 								"-") :
 								OSD_Global.LocationsDict[currentName]?.Count.ToString();
-					curY += this.GroupOfThingsMaker(rect1.x, curY, rect1.width, currentName, param);
+					curY += this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, Text.LineHeight), currentName, param, ref favChange);
 				}
+			}
+			List<string> list = OSD_Global.CategoriesDict[ObjectSeeker_Data.CategoryOfObjects.Favorites];
+			if (!String.IsNullOrEmpty(favChange))
+			{
+				if (!list.Contains(favChange))
+					list.Add(favChange);
+				else
+					list.Remove(favChange); 
 			}
 			GUI.EndGroup();
 			Widgets.EndScrollView();
@@ -133,12 +142,11 @@ namespace ZiTools
 
 		public static void DrawWindow() => Find.WindowStack.Add(new ObjectSeeker_Window());
 
-		float GroupOfThingsMaker(float x, float y, float width, string label, string param, bool createFindButton = true)
+		float GroupOfThingsMaker(Rect inRect, string label, string param, ref string favChange, bool createFindButton = true)
 		{
-			Rect rectImage = new Rect(x, y, Text.LineHeight, Text.LineHeight);
-			Rect rectLabel = new Rect(x, y, width - Text.LineHeight, Text.LineHeight) { xMin = rectImage.xMax + 2f };
-			Rect rectFavButton = new Rect(rectLabel.xMax, y, Text.LineHeight, Text.LineHeight);
-			rectLabel.xMin = rectImage.xMax + 2f;
+			Rect rectImage = new Rect(inRect.x, inRect.y, inRect.height, inRect.height);
+			Rect rectLabel = new Rect(inRect.x, inRect.y, inRect.width - inRect.height, inRect.height) { xMin = rectImage.xMax + 2f };
+			Rect rectFavButton = new Rect(rectLabel.xMax, inRect.y, inRect.height, inRect.height);
 			if (createFindButton)
 			{
 				if (OSD_Global.ThingsDict[label] != null)
@@ -175,17 +183,18 @@ namespace ZiTools
 #endif
 				}
 
-				if (Widgets.ButtonInvisible(rectFavButton))
+				ObjectSeeker_Data.CategoryOfObjects favCat = ObjectSeeker_Data.CategoryOfObjects.Favorites;
+				if (Mouse.IsOver(rectFavButton) || OSD_Global.CategoriesDict[favCat].Contains(label))
 				{
-					List<string> list = OSD_Global.CategoriesDict[ObjectSeeker_Data.CategoryOfObjects.Favorites];
-					if (!list.Contains(label))
-						list.Add(label);
-					else
-						list.Remove(label);
+					if (Widgets.ButtonImage(rectFavButton, OSD_Global.TexturesOfCategoriesDict[favCat]))
+					{
+						favChange = label;
+						SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
+					}
 				}
 			}
 			TooltipHandler.TipRegion(rectLabel, label);
-			Rect rectParam = new Rect(width - Text.CalcSize(param).x, y, Text.CalcSize(param).x, Text.LineHeight);
+			Rect rectParam = new Rect(inRect.width - Text.CalcSize(param).x, inRect.y, Text.CalcSize(param).x, inRect.height);
 			Widgets.Label(rectLabel.RightPartPixels(rectParam.width), param);
 
 			rectLabel.width -= rectParam.width;

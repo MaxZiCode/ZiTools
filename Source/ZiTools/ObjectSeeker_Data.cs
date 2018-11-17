@@ -30,6 +30,18 @@ namespace ZiTools
 
 		public List<IntVec3> Positions { get => LocationsDict[ThingToSeek]; }
 
+		public readonly Dictionary<CategoryOfObjects, Texture2D> TexturesOfCategoriesDict = new Dictionary<CategoryOfObjects, Texture2D>
+		{
+			{ CategoryOfObjects.Favorites,  ContentFinder<Texture2D>.Get("UI/Favourite Button", true) },
+			{ CategoryOfObjects.All,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ CategoryOfObjects.Buildings,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ CategoryOfObjects.Terrains,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ CategoryOfObjects.Plants,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ CategoryOfObjects.Pawns,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ CategoryOfObjects.Corpses,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ CategoryOfObjects.Other,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) }
+		};
+
 		public readonly Dictionary<CategoryOfObjects, string> NamesOfCategoriesDict = new Dictionary<CategoryOfObjects, string>
 		{
 			{ CategoryOfObjects.Favorites, "ZiT_FavoritesCategoryLabel".Translate() },
