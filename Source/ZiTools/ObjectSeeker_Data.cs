@@ -30,18 +30,6 @@ namespace ZiTools
 
 		public List<IntVec3> Positions { get => LocationsDict[ThingToSeek]; }
 
-		public readonly Dictionary<CategoryOfObjects, Texture2D> TexturesOfCategoriesDict = new Dictionary<CategoryOfObjects, Texture2D>
-		{
-			{ CategoryOfObjects.Favorites,  ContentFinder<Texture2D>.Get("UI/Favourite Button", true) },
-			{ CategoryOfObjects.All,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ CategoryOfObjects.Buildings,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ CategoryOfObjects.Terrains,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ CategoryOfObjects.Plants,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ CategoryOfObjects.Pawns,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ CategoryOfObjects.Corpses,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ CategoryOfObjects.Other,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) }
-		};
-
 		public readonly Dictionary<CategoryOfObjects, string> NamesOfCategoriesDict = new Dictionary<CategoryOfObjects, string>
 		{
 			{ CategoryOfObjects.Favorites, "ZiT_FavoritesCategoryLabel".Translate() },
@@ -129,11 +117,13 @@ namespace ZiTools
 			{
 				CategoriesDict[CategoryOfObjects.All].AddRange(list);
 			}
+			if (CategoriesDict[CategoryOfObjects.Favorites].Count > 0)
+				CategoriesDict[CategoryOfObjects.Favorites].RemoveAll(n => !CategoriesDict[CategoryOfObjects.All].Contains(n));
 			if (!this.LocationsDict.ContainsKey(this.ThingToSeek))
-				this.ThingToSeek = string.Empty;
+				ObjectSeeker_Window.Clear();
 #if DEBUG
 			sw.Stop();
-			DebugMessage($"Object Seeker has filled data for {sw.ElapsedMilliseconds} ms"); 
+			LogDebug($"Object Seeker has filled data for {sw.ElapsedMilliseconds} ms"); 
 #endif
 		}
 
@@ -172,11 +162,12 @@ namespace ZiTools
 				return 0;
 		}
 
-		public void ExposeData()
+		public void ExposeData() 
 		{
 			List<string> fav = CategoriesDict[CategoryOfObjects.Favorites];
 			Scribe_Collections.Look<string>(ref fav, "ObjectSeeker_favourites");
-			CategoriesDict[CategoryOfObjects.Favorites] = fav;
+			if (fav != null)
+				CategoriesDict[CategoryOfObjects.Favorites] = fav;
 		}
 
 		public enum CategoryOfObjects

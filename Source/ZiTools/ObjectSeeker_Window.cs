@@ -6,6 +6,7 @@ using Verse.Sound;
 using RimWorld;
 
 using static ZiTools.StaticConstructor;
+using static ZiTools.ZiTools_GameComponent;
 
 namespace ZiTools
 {
@@ -63,7 +64,7 @@ namespace ZiTools
 			{
 				ObjectSeeker_Data.CategoryOfObjects currentCategory = (ObjectSeeker_Data.CategoryOfObjects)Enum.Parse(typeof(ObjectSeeker_Data.CategoryOfObjects), i.ToString());
 				Widgets.DrawWindowBackground(lightRect);
-				if (Widgets.ButtonImage(selectButtonRect, OSD_Global.TexturesOfCategoriesDict[currentCategory]))
+				if (Widgets.ButtonImage(selectButtonRect, TexturesOfCategoriesDict[currentCategory]))
 				{
 					OSD_Global.SelectedCategory = currentCategory;
 					SoundDefOf.Click.PlayOneShotOnCamera();
@@ -179,14 +180,14 @@ namespace ZiTools
 					}
 #if DEBUG
 					if (OSD_Global.ThingsDict[label] != null)
-						DebugMessage(OSD_Global.ThingsDict[label].LabelCap);
+						LogDebug(OSD_Global.ThingsDict[label].LabelCap);
 #endif
 				}
 
 				ObjectSeeker_Data.CategoryOfObjects favCat = ObjectSeeker_Data.CategoryOfObjects.Favorites;
 				if (Mouse.IsOver(rectFavButton) || OSD_Global.CategoriesDict[favCat].Contains(label))
 				{
-					if (Widgets.ButtonImage(rectFavButton, OSD_Global.TexturesOfCategoriesDict[favCat]))
+					if (Widgets.ButtonImage(rectFavButton, TexturesOfCategoriesDict[favCat]))
 					{
 						favChange = label;
 						SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();

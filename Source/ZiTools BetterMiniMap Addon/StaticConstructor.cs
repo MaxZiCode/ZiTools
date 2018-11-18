@@ -17,13 +17,8 @@ namespace ZiTools_BetterMiniMap
 	{
         static StaticConstructor()
 		{
-
 			if (ModLister.AllInstalledMods.FirstOrDefault(m => m.Name == "BetterMiniMap")?.Active == true)
 			{
-				//DesignationOverlay desOv = new DesignationOverlay();
-				//OverlayManager.DefOverlays.Add(desOv);
-				//ZiTools.ObjectSeeker_Window.UpdateAction += delegate { desOv.Visible = true; };
-
 				var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.addonconstructor");
 				harmony.PatchAll(Assembly.GetExecutingAssembly());
 			}
@@ -38,7 +33,7 @@ namespace ZiTools_BetterMiniMap
 				__instance.DefOverlays.Add(desOv);
 				ZiTools.ObjectSeeker_Window.SetUpdateAction(delegate { desOv.Visible = true; });
 #if DEBUG
-				DebugMessage("Designation overlay has added by " + __instance.GetType().ToString());
+				LogDebug("Designation overlay has added by " + __instance.GetType().ToString());
 #endif
 			}
 		}

@@ -15,19 +15,30 @@ namespace ZiTools
 	[StaticConstructorOnStartup]
 	public static class StaticConstructor
 	{
-		public static readonly ObjectSeeker_Data OSD_Global = new ObjectSeeker_Data();
-
 		static StaticConstructor()
 		{
 			var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.mainconstructor");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
-		public static void DebugMessage(string msg)
+		public static readonly Dictionary<ObjectSeeker_Data.CategoryOfObjects, Texture2D> TexturesOfCategoriesDict = new Dictionary<ObjectSeeker_Data.CategoryOfObjects, Texture2D>
+		{
+			{ ObjectSeeker_Data.CategoryOfObjects.Favorites,  ContentFinder<Texture2D>.Get("UI/Favourite Button", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.All,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.Buildings,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.Terrains,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.Plants,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.Pawns,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.Corpses,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
+			{ ObjectSeeker_Data.CategoryOfObjects.Other,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) }
+		};
+
+		public static void LogDebug(string msg)
 		{
 			Log.Message("[ZiTools] " + msg);
 		}
 
+		#region Patches
 		[HarmonyPatch(typeof(Game), "CurrentMap", MethodType.Setter)]
 		class Patch_CurrentMap
 		{
@@ -68,5 +79,6 @@ namespace ZiTools
 				ObjectSeeker_Window.ClearUpdateAction();
 			}
 		}
+		#endregion Patches
 	}
 }
