@@ -101,7 +101,8 @@ namespace ZiTools
 			Widgets.BeginScrollView(mainRect, ref ScrollPosition, rect1, true);
 			GUI.BeginGroup(rect1);
 			string favChange = null;
-			curY += this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, Text.LineHeight), "ZiT_NameLabel".Translate(), OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), ref favChange, false);
+			this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, Text.LineHeight), "ZiT_NameLabel".Translate(), OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), ref favChange, false);
+			curY += Text.LineHeight;
 			OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Sort();
 			if (OSD_Global.SelectedCategory == ObjectSeeker_Data.CategoryOfObjects.Corpses)
 				OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Sort(OSD_Global);
@@ -114,7 +115,8 @@ namespace ZiTools
 								OSD_Global.CorpsesTimeRemainDict[currentName].ToStringTicksToDays() :
 								"-") :
 								OSD_Global.LocationsDict[currentName]?.Count.ToString();
-					curY += this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, Text.LineHeight), currentName, param, ref favChange);
+					this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, Text.LineHeight), currentName, param, ref favChange);
+					curY += Text.LineHeight;
 				}
 			}
 			List<string> list = OSD_Global.CategoriesDict[ObjectSeeker_Data.CategoryOfObjects.Favorites];
@@ -143,7 +145,7 @@ namespace ZiTools
 
 		public static void DrawWindow() => Find.WindowStack.Add(new ObjectSeeker_Window());
 
-		float GroupOfThingsMaker(Rect inRect, string label, string param, ref string favChange, bool createFindButton = true)
+		void GroupOfThingsMaker(Rect inRect, string label, string param, ref string favChange, bool createFindButton = true)
 		{
 			Rect rectImage = new Rect(inRect.x, inRect.y, inRect.height, inRect.height);
 			Rect rectLabel = new Rect(inRect.x, inRect.y, inRect.width - inRect.height, inRect.height) { xMin = rectImage.xMax + 2f };
@@ -151,7 +153,15 @@ namespace ZiTools
 			if (createFindButton)
 			{
 				if (OSD_Global.ThingsDict[label] != null)
-					Widgets.ThingIcon(rectImage, OSD_Global.ThingsDict[label]);
+				{
+					if (OSD_Global.ThingsDict[label] is Corpse)
+					{
+						if (((Corpse)OSD_Global.ThingsDict[label])?.InnerPawn != null) // otherwise it cause an error when corpses has been destroyed
+							Widgets.ThingIcon(rectImage, OSD_Global.ThingsDict[label]);
+					}
+					else
+						Widgets.ThingIcon(rectImage, OSD_Global.ThingsDict[label]); 
+				}
 				else if (OSD_Global.TerrainDefDict.ContainsKey(label) && OSD_Global.TerrainDefDict?[label] != null)
 				{
 					Designator_Build desBuild = new Designator_Build(OSD_Global.TerrainDefDict[label]);
@@ -180,7 +190,7 @@ namespace ZiTools
 					}
 #if DEBUG
 					if (OSD_Global.ThingsDict[label] != null)
-						LogDebug(OSD_Global.ThingsDict[label].LabelCap);
+						LogDebug(OSD_Global.ThingsDict[label]?.LabelCap);
 #endif
 				}
 
@@ -200,8 +210,6 @@ namespace ZiTools
 
 			rectLabel.width -= rectParam.width;
 			Widgets.Label(rectLabel.LeftPartPixels(rectLabel.width), label);
-			
-			return rectLabel.height;
 		}
 
 		public static void Update()

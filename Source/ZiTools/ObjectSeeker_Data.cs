@@ -61,8 +61,11 @@ namespace ZiTools
 #endif
 			this.MapInProcess = Find.CurrentMap;
 
-			CorpsesTimeRemainDict.Clear();
 			LocationsDict.Clear();
+			ThingsDict.Clear();
+			TerrainDefDict.Clear();
+			CorpsesTimeRemainDict.Clear();
+			
 			LocationsDict.Add(String.Empty, new List<IntVec3>());
 			List<string> favourites = CategoriesDict[CategoryOfObjects.Favorites];
 			CategoriesDict.Clear();
