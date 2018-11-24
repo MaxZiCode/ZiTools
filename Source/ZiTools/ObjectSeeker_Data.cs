@@ -1,67 +1,101 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using System.Diagnostics;
 using UnityEngine;
 using Verse;
 using RimWorld;
 
+using static ZiTools.StaticConstructor;
+
 namespace ZiTools
 {
-	public class ObjectSeeker_Data : IComparer<string>
+	public class ObjectSeeker_Data : IComparer<string>, IExposable
 	{
-		readonly List<FloatMenuOption> _floatMenuCategoriesOpt;
-
 		public ObjectSeeker_Data()
 		{
 			LocationsDict = new Dictionary<string, List<IntVec3>> { { String.Empty, new List<IntVec3>() } };
-			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>();
+			ThingsDict = new Dictionary<string, Thing>();
+			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>
+			{
+				{ CategoryOfObjects.Favorites, new List<string>() }
+			};
 			CorpsesTimeRemainDict = new Dictionary<string, int>();
+			TerrainDefDict = new Dictionary<string, TerrainDef>();
 			ThingToSeek = string.Empty;
-			SelectedCategory = CategoryOfObjects.Buildings;
+			SelectedCategory = CategoryOfObjects.Favorites;
 			MapInProcess = Find.CurrentMap;
-
-			_floatMenuCategoriesOpt = new List<FloatMenuOption>()
-				{
-					new FloatMenuOption("ZiT_BuildingCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Buildings; }),
-					new FloatMenuOption("ZiT_TerrainCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Terrains; }),
-					new FloatMenuOption("ZiT_PlantCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Plants; }),
-					new FloatMenuOption("ZiT_PawnsCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Pawns; }),
-					new FloatMenuOption("ZiT_СorpsesCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Corpses; }),
-					new FloatMenuOption("ZiT_OtherCategoryLabel".Translate(), delegate{ SelectedCategory = CategoryOfObjects.Other; })
-				};
 		}
 
 		public List<IntVec3> Positions { get => LocationsDict[ThingToSeek]; }
 
+		public readonly Dictionary<CategoryOfObjects, string> NamesOfCategoriesDict = new Dictionary<CategoryOfObjects, string>
+		{
+			{ CategoryOfObjects.Favorites, "ZiT_FavoritesCategoryLabel".Translate() },
+			{ CategoryOfObjects.All, "ZiT_AllCategoryLabel".Translate() },
+			{ CategoryOfObjects.Buildings, "ZiT_BuildingCategoryLabel".Translate() },
+			{ CategoryOfObjects.Terrains, "ZiT_TerrainCategoryLabel".Translate() },
+			{ CategoryOfObjects.Plants, "ZiT_PlantCategoryLabel".Translate() },
+			{ CategoryOfObjects.Pawns, "ZiT_PawnsCategoryLabel".Translate() },
+			{ CategoryOfObjects.Corpses, "ZiT_СorpsesCategoryLabel".Translate() },
+			{ CategoryOfObjects.Other, "ZiT_OtherCategoryLabel".Translate() }
+		};
+
+		public Dictionary<CategoryOfObjects, Texture2D> TexturesOfCategoriesDict;
 		public Dictionary<string, List<IntVec3>> LocationsDict { get; set; }
+		public Dictionary<string, Thing> ThingsDict { get; set; }
+		public Dictionary<string, TerrainDef> TerrainDefDict { get; set; }
 		public Dictionary<CategoryOfObjects, List<string>> CategoriesDict { get; set; }
 		public Dictionary<string, int> CorpsesTimeRemainDict { get; set; }
 
 		public Map MapInProcess { get; set; }
 
-		public FloatMenu CategoryMenu { get => new FloatMenu(_floatMenuCategoriesOpt); }
-
 		public string ThingToSeek { get; set; }
-		public string SelectedCategoryName { get => _floatMenuCategoriesOpt[(int)SelectedCategory].Label; }
-
-		public bool WindowIsOpen { get; set; }
-
+		public string SelectedCategoryName { get => NamesOfCategoriesDict[SelectedCategory]; }
+		
 		public CategoryOfObjects SelectedCategory { get; set; }
+
+		public void InitializeTextures()
+		{
+			TexturesOfCategoriesDict = new Dictionary<CategoryOfObjects, Texture2D>
+			{
+				{ CategoryOfObjects.Favorites,  ContentFinder<Texture2D>.Get("UI/Favourite Button", true) },
+				{ CategoryOfObjects.All,  ContentFinder<Texture2D>.Get("UI/All Button", true) },
+				{ CategoryOfObjects.Buildings,  ContentFinder<Texture2D>.Get("UI/Designators/Deconstruct", true) },
+				{ CategoryOfObjects.Terrains,  ContentFinder<Texture2D>.Get("UI/Designators/RemoveFloor", true) },
+				{ CategoryOfObjects.Plants,  DefDatabase<ThingDef>.GetNamed("Plant_TreeOak").uiIcon },
+				{ CategoryOfObjects.Pawns,  DefDatabase<ThingDef>.GetNamed("Muffalo").uiIcon },
+				{ CategoryOfObjects.Corpses,  ContentFinder<Texture2D>.Get("Things/Mote/ThoughtSymbol/Skull", true) },
+				{ CategoryOfObjects.Other,  DefDatabase<ThingDef>.GetNamed("ChunkSlagSteel").uiIcon }
+			};
+		}
 
 		public void FindAllThings()
 		{
+#if DEBUG
+			Stopwatch sw = Stopwatch.StartNew();
+#endif
 			this.MapInProcess = Find.CurrentMap;
 
-			CategoriesDict.Clear();
-			CorpsesTimeRemainDict.Clear();
 			LocationsDict.Clear();
+			ThingsDict.Clear();
+			TerrainDefDict.Clear();
+			CorpsesTimeRemainDict.Clear();
+			
 			LocationsDict.Add(String.Empty, new List<IntVec3>());
+			List<string> favourites = CategoriesDict[CategoryOfObjects.Favorites];
+			CategoriesDict.Clear();
+			CategoriesDict.Add(CategoryOfObjects.Favorites, favourites);
 
 			foreach (IntVec3 location in MapInProcess.AllCells)
 			{
 				if (MapInProcess.fogGrid.IsFogged(location))
 					continue;
-				FillData<TerrainDef>(location, location.GetTerrain(MapInProcess).label, CategoryOfObjects.Terrains);
+				TerrainDef ter = location.GetTerrain(MapInProcess);
+				FillData<TerrainDef>(location, ter.label, CategoryOfObjects.Terrains);
+				if (!TerrainDefDict.ContainsKey(ter.label))
+					TerrainDefDict.Add(ter.label, ter);
 				List<Thing> allThingsOnLocation = location.GetThingList(MapInProcess);
 				if (allThingsOnLocation.Count > 0)
 				{
@@ -97,8 +131,20 @@ namespace ZiTools
 					}
 				}
 			}
+			CategoriesDict.Add(CategoryOfObjects.All, new List<string>());
+			var AllObjects = (from k in CategoriesDict.Keys where k != CategoryOfObjects.All && k != CategoryOfObjects.Favorites select CategoriesDict[k]);
+			foreach (var list in AllObjects)
+			{
+				CategoriesDict[CategoryOfObjects.All].AddRange(list);
+			}
+			if (CategoriesDict[CategoryOfObjects.Favorites].Count > 0)
+				CategoriesDict[CategoryOfObjects.Favorites].RemoveAll(n => !CategoriesDict[CategoryOfObjects.All].Contains(n));
 			if (!this.LocationsDict.ContainsKey(this.ThingToSeek))
-				this.ThingToSeek = string.Empty;
+				ObjectSeeker_Window.Clear();
+#if DEBUG
+			sw.Stop();
+			LogDebug($"Object Seeker has filled data for {sw.ElapsedMilliseconds} ms"); 
+#endif
 		}
 
 		private bool FillData<T>(IntVec3 location, string label, CategoryOfObjects category, Thing currentThing = null)
@@ -117,6 +163,9 @@ namespace ZiTools
 					LocationsDict[label].Add(location);
 				else
 					LocationsDict.Add(label, new List<IntVec3>(new IntVec3[] { location }));
+				
+				if (!ThingsDict.ContainsKey(label))
+					ThingsDict.Add(label, currentThing);
 				return true;
 			}
 			else
@@ -133,8 +182,18 @@ namespace ZiTools
 				return 0;
 		}
 
+		public void ExposeData() 
+		{
+			List<string> fav = CategoriesDict[CategoryOfObjects.Favorites];
+			Scribe_Collections.Look<string>(ref fav, "ObjectSeeker_favourites");
+			if (fav != null)
+				CategoriesDict[CategoryOfObjects.Favorites] = fav;
+		}
+
 		public enum CategoryOfObjects
 		{
+			Favorites,
+			All,
 			Buildings,
 			Terrains,
 			Plants,

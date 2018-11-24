@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using System.Diagnostics;
 using Verse;
 using RimWorld;
@@ -14,7 +15,7 @@ namespace ZiTools
 
 		public static void SetMarks(DesignationDef DesDef)
 		{
-			ObjectSeeker_Data OSD = StaticConstructor.OSD_Global;
+			ObjectSeeker_Data OSD = ZiTools_GameComponent.OSD_Global;
 			if (OSD.ThingToSeek != string.Empty && OSD.Positions.Count != 0)
 			{
 				RemoveMarks(DesDef);
