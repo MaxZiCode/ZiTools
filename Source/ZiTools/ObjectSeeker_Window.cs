@@ -33,13 +33,15 @@ namespace ZiTools
 		public override void PreOpen()
 		{
 			base.PreOpen();
+			if (OSD_Global.TexturesOfCategoriesDict == null)
+				OSD_Global.InitializeTextures();
 			Clear();
 			Update();
 		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			float textFieldH = 35f, sqSize = 50f, lightRectGap = 10f, buttonX = inRect.xMax - 2f * (lightRectGap + sqSize);
+			float textFieldH = 35f, buttonWidth = 50f, buttonHeigth = 50f, buttonX = inRect.xMax - 2f * (buttonWidth + 1f);
 			Text.Font = GameFont.Medium;
 			Rect titleRect = new Rect(inRect) { height = Text.LineHeight + 7f };
 			Rect textFieldRect = new Rect(titleRect.x, titleRect.yMax, buttonX - textFieldH - 5f, textFieldH);
@@ -56,36 +58,46 @@ namespace ZiTools
 			MouseoverSounds.DoRegion(updateButtonRect, SoundDefOf.Mouseover_Category);
 			Text.Font = GameFont.Small;
 			
-			Rect lightRect = new Rect(buttonX, inRect.yMax - sqSize * 4f, lightRectGap, sqSize);
-			Rect selectButtonRect = new Rect(lightRect.xMax, lightRect.y, sqSize, sqSize);
+			Rect catButtRect = new Rect(buttonX, inRect.yMax - (buttonHeigth + 1f) * 4f, buttonWidth, buttonHeigth);
 			Vector2 categorySize = Text.CalcSize(OSD_Global.SelectedCategoryName);
-			Widgets.Label(new Rect(lightRect.x + (inRect.xMax - lightRect.x - categorySize.x) / 2f, (lightRect.y - categorySize.y) / 2f, categorySize.x, categorySize.y), OSD_Global.SelectedCategoryName);
+			Widgets.Label(new Rect(catButtRect.x + (inRect.xMax - catButtRect.x - categorySize.x) / 2f, (catButtRect.y - categorySize.y) / 2f, categorySize.x, categorySize.y), OSD_Global.SelectedCategoryName);
 			for (int i = 0; i < 8; i++)
 			{
 				ObjectSeeker_Data.CategoryOfObjects currentCategory = (ObjectSeeker_Data.CategoryOfObjects)Enum.Parse(typeof(ObjectSeeker_Data.CategoryOfObjects), i.ToString());
-				Widgets.DrawWindowBackground(lightRect);
-				if (Widgets.ButtonImage(selectButtonRect, TexturesOfCategoriesDict[currentCategory]))
+				
+				if (OSD_Global.SelectedCategory == currentCategory)
+				{
+					GUI.color = Widgets.WindowBGFillColor;
+					GUI.DrawTexture(catButtRect, BaseContent.BlackTex);
+					GUI.color = new Color(1f, 0.9f, 0f);
+					Widgets.DrawBox(catButtRect, 3);
+					GUI.color = Color.white;
+				}
+				else
+				{
+					GUI.color = Widgets.WindowBGFillColor;
+					GUI.DrawTexture(catButtRect, BaseContent.WhiteTex);
+					GUI.color = Color.white;
+					Widgets.DrawBox(catButtRect, 2);
+				}
+				
+				if (Widgets.ButtonImage(catButtRect.ScaledBy(0.8f), OSD_Global.TexturesOfCategoriesDict[currentCategory]))
 				{
 					OSD_Global.SelectedCategory = currentCategory;
 					SoundDefOf.Click.PlayOneShotOnCamera();
 				}
-				MouseoverSounds.DoRegion(selectButtonRect, SoundDefOf.Mouseover_Category);
-				if (OSD_Global.SelectedCategory == currentCategory)
-					Widgets.DrawHighlightSelected(lightRect);
-				TooltipHandler.TipRegion(selectButtonRect, OSD_Global.NamesOfCategoriesDict[currentCategory]);
-				lightRect.x = selectButtonRect.xMax;
-				selectButtonRect.x = lightRect.xMax;
+				TooltipHandler.TipRegion(catButtRect, OSD_Global.NamesOfCategoriesDict[currentCategory]);
+				MouseoverSounds.DoRegion(catButtRect, SoundDefOf.Mouseover_Category);
+				catButtRect.x = catButtRect.xMax + 1f;
 				if (i % 2 == 1)
 				{
-					lightRect.y += sqSize;
-					lightRect.x = buttonX;
-					selectButtonRect.y += sqSize;
-					selectButtonRect.x = lightRect.xMax; 
+					catButtRect.x = buttonX;
+					catButtRect.y += catButtRect.height + 1f;
 				}
 			}
 
 			float curY = textFieldRect.yMax;
-			Rect mainRect = new Rect(inRect) { yMin = curY, xMax = lightRect.x };
+			Rect mainRect = new Rect(inRect) { yMin = curY, xMax = catButtRect.x };
 			if (!OSD_Global.CategoriesDict.ContainsKey(OSD_Global.SelectedCategory) || OSD_Global.CategoriesDict[OSD_Global.SelectedCategory].Count == 0)
 			{
 				Widgets.Label(mainRect, "ZiT_NotFoundString".Translate(OSD_Global.SelectedCategoryName));
@@ -156,7 +168,7 @@ namespace ZiTools
 				{
 					if (OSD_Global.ThingsDict[label] is Corpse)
 					{
-						if (((Corpse)OSD_Global.ThingsDict[label])?.InnerPawn != null) // otherwise it cause an error when corpses has been destroyed
+						if (((Corpse)OSD_Global.ThingsDict[label])?.InnerPawn != null) // otherwise it cause an error when corpses have been destroyed
 							Widgets.ThingIcon(rectImage, OSD_Global.ThingsDict[label]);
 					}
 					else
@@ -197,7 +209,7 @@ namespace ZiTools
 				ObjectSeeker_Data.CategoryOfObjects favCat = ObjectSeeker_Data.CategoryOfObjects.Favorites;
 				if (Mouse.IsOver(rectFavButton) || OSD_Global.CategoriesDict[favCat].Contains(label))
 				{
-					if (Widgets.ButtonImage(rectFavButton, TexturesOfCategoriesDict[favCat]))
+					if (Widgets.ButtonImage(rectFavButton.ScaledBy(0.85f), OSD_Global.TexturesOfCategoriesDict[favCat]))
 					{
 						favChange = label;
 						SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();

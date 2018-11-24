@@ -21,18 +21,6 @@ namespace ZiTools
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
-		public static readonly Dictionary<ObjectSeeker_Data.CategoryOfObjects, Texture2D> TexturesOfCategoriesDict = new Dictionary<ObjectSeeker_Data.CategoryOfObjects, Texture2D>
-		{
-			{ ObjectSeeker_Data.CategoryOfObjects.Favorites,  ContentFinder<Texture2D>.Get("UI/Favourite Button", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.All,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.Buildings,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.Terrains,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.Plants,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.Pawns,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.Corpses,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) },
-			{ ObjectSeeker_Data.CategoryOfObjects.Other,  ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true) }
-		};
-
 		public static void LogDebug(string msg)
 		{
 			Log.Message("[ZiTools] " + msg);
@@ -59,7 +47,7 @@ namespace ZiTools
 				if (!worldView)
 				{
 					bool isSelected = Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window));
-					row.ToggleableIcon(ref isSelected, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerDesc".Translate(), SoundDefOf.Mouseover_ButtonToggle);
+					row.ToggleableIcon(ref isSelected, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerLabel".Translate(), SoundDefOf.Mouseover_ButtonToggle);
 					if (isSelected != Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)))
 					{
 						if (!Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)))
