@@ -31,7 +31,7 @@ namespace ZiTools_BetterMiniMap
 			{
 				DesignationOverlay desOv = new DesignationOverlay(map);
 				__instance.DefOverlays.Add(desOv);
-				ZiTools.ObjectSeeker_Window.SetUpdateAction(delegate { desOv.Visible = true; });
+				ZiTools.ObjectsDatabase.SetUpdateAction(delegate { desOv.Visible = true; });
 #if DEBUG
 				LogDebug("Designation overlay has added by " + __instance.GetType().ToString());
 #endif

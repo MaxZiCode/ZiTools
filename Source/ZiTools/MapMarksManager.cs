@@ -13,15 +13,14 @@ namespace ZiTools
 	{
 		public static readonly DesignationDef ObjectSeeker_MarkDef = DefDatabase<DesignationDef>.GetNamed("ObjectSeekerMark", true);
 
-		public static void SetMarks(DesignationDef DesDef)
+		public static void SetMarks(DesignationDef DesDef, List<IntVec3> positions)
 		{
-			ObjectSeeker_Data OSD = ZiTools_GameComponent.OSD_Global;
-			if (OSD.ThingToSeek != string.Empty && OSD.Positions.Count != 0)
+			if (positions != null && positions.Count != 0)
 			{
 				RemoveMarks(DesDef);
 				IntVec3 prevPos = new IntVec3();
 				Stopwatch sw = Stopwatch.StartNew();
-				for (int i = 0; i < OSD.Positions.Count; i++)
+				for (int i = 0; i < positions.Count; i++)
 				{
 					if (sw.Elapsed.Seconds >= 2)
 					{
@@ -30,7 +29,7 @@ namespace ZiTools
 						break;
 					}
 
-					IntVec3 pos = OSD.Positions[i];
+					IntVec3 pos = positions[i];
 					if (pos == prevPos)
 						continue;
 					Find.CurrentMap.designationManager.AddDesignation(new Designation(pos, DesDef));

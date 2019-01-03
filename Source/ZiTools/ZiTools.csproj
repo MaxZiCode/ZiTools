@@ -50,12 +50,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CorpseTimeComparer.cs" />
+    <Compile Include="GameComponent.cs" />
     <Compile Include="MapMarksManager.cs" />
-    <Compile Include="ObjectSeeker_Data.cs" />
     <Compile Include="ObjectSeeker_Window.cs" />
     <Compile Include="StaticConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GameComponent.cs" />
+    <Compile Include="ObjectSeeker_Data.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

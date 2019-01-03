@@ -34,7 +34,7 @@ namespace ZiTools
 			{
 				if (Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)) && Current.ProgramState == ProgramState.Playing)
 				{
-					ObjectSeeker_Window.Update();
+					((ObjectSeeker_Window)Find.WindowStack.Windows.First(w => w is ObjectSeeker_Window)).ODB.Update();
 				}
 			}
 		}
@@ -64,7 +64,7 @@ namespace ZiTools
 		{
 			static void Postfix()
 			{
-				ObjectSeeker_Window.ClearUpdateAction();
+				ObjectsDatabase.ClearUpdateAction();
 			}
 		}
 		#endregion Patches
