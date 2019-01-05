@@ -27,7 +27,7 @@ namespace ZiTools
 
 		Dictionary<CategoryOfObjects, Texture2D> TexturesOfCategoriesDict;
 		Dictionary<string, List<IntVec3>> LocationsDict = new Dictionary<string, List<IntVec3>>(); //defName - locations
-		Dictionary<string, Thing> ThingsDict = new Dictionary<string, Thing>(); //Things for textures
+		Dictionary<string, ThingIconData> thingIconsDict = new Dictionary<string, ThingIconData>(); //ThingIconData for textures
 		Dictionary<string, TerrainIconData> terrainIconsDict = new Dictionary<string, TerrainIconData>(); //TerrainIconData for terrain textures 
 		Dictionary<CategoryOfObjects, List<string>> CategoriesDict = new Dictionary<CategoryOfObjects, List<string>> //Category - defNames
 			{ { CategoryOfObjects.Favorites, new List<string>() } };
@@ -68,6 +68,7 @@ namespace ZiTools
 					_defToSeek = null;
 			}
 		}
+
 		public string SelectedCategoryName { get => CheckDictForErrors(NamesOfCategoriesDict, SelectedCategory); }
 		public CategoryOfObjects SelectedCategory { get; set; }
 		public List<string> NamesInSelectedCategory { get => CategoriesDict[SelectedCategory]; } // TODO: add labels
@@ -95,18 +96,12 @@ namespace ZiTools
 
 		public void DrawIcon(string defName, Rect outerRect)
 		{
-			if (ThingsDict.ContainsKey(defName) && ThingsDict?[defName] != null) // TODO: Build new optimized class for thing icons
-			{
-				if (ThingsDict[defName] is Corpse)
-				{
-					if (((Corpse)ThingsDict[defName])?.InnerPawn != null) //otherwise it cause an error when corpses have been destroyed
-						Widgets.ThingIcon(outerRect, ThingsDict[defName]);
-				}
-				else
-					Widgets.ThingIcon(outerRect, ThingsDict[defName]);
-			}
+			if (thingIconsDict.ContainsKey(defName) && thingIconsDict?[defName] != null)
+				thingIconsDict[defName].DrawIcon(outerRect);
 			else if (terrainIconsDict.ContainsKey(defName) && terrainIconsDict?[defName] != null)
 				terrainIconsDict[defName].DrawIcon(outerRect);
+			else
+				Log.Warning($"Object seeker could not load an icon for {defName} def");
 		}
 
 		public bool IsSelectedCategoryHaveObjects() => CategoriesDict[SelectedCategory].Count > 0;
@@ -258,8 +253,8 @@ namespace ZiTools
 		{
 			if (currentThing is T || currentThing == null)
 			{
-				if (!ThingsDict.ContainsKey(label))
-					ThingsDict.Add(label, currentThing);
+				if (currentThing != null && !thingIconsDict.ContainsKey(label))
+					thingIconsDict.Add(label, new ThingIconData(currentThing));
 
 				if (!CategoriesDict[category].Contains(label))
 					CategoriesDict[category].Add(label);
@@ -314,11 +309,12 @@ namespace ZiTools
 			LogDebug("ExposeData finished");
 		}
 
-		public class TerrainIconData //optimized inner class for drawing a terrain icon
+		//optimized inner class for drawing a terrain icon
+		public class TerrainIconData 
 		{
-			Texture2D icon;
+			readonly Texture2D icon;
 			Rect iconTexCoords;
-			float iconAngle;
+			readonly float iconAngle;
 			Color iconDrawColor;
 
 			public TerrainIconData(TerrainDef entDef)
@@ -333,6 +329,60 @@ namespace ZiTools
 			{
 				GUI.color = this.iconDrawColor;
 				Widgets.DrawTextureFitted(outerRect, this.icon, 1f, Vector2.one, this.iconTexCoords, this.iconAngle);
+				GUI.color = Color.white;
+			}
+		}
+
+		//optimized inner class for drawing a thing icon
+		public class ThingIconData 
+		{
+			Color drawColor;
+			readonly float resolvedIconAngle;
+			readonly Texture resolvedIcon;
+
+			public const float ThingIconSize = 50f;
+
+			public ThingIconData(Thing thing)
+			{
+				this.drawColor = thing.DrawColor;
+				this.resolvedIconAngle = 0f;
+				if (!thing.def.uiIconPath.NullOrEmpty())
+				{
+					this.resolvedIcon = thing.def.uiIcon;
+					this.resolvedIconAngle = thing.def.uiIconAngle;
+				}
+				else if (thing is Pawn || thing is Corpse)
+				{
+					if (!(thing is Pawn pawn))
+					{
+						pawn = ((Corpse)thing).InnerPawn;
+					}
+					if (!pawn.RaceProps.Humanlike)
+					{
+						if (!pawn.Drawer.renderer.graphics.AllResolved)
+						{
+							pawn.Drawer.renderer.graphics.ResolveAllGraphics();
+						}
+						Material material = pawn.Drawer.renderer.graphics.nakedGraphic.MatAt(Rot4.East, null);
+						this.resolvedIcon = material.mainTexture;
+						this.drawColor = material.color;
+					}
+					else
+					{
+						this.resolvedIcon = PortraitsCache.Get(pawn, new Vector2(ThingIconSize, ThingIconSize), default(Vector3), 1f);
+					}
+				}
+				else
+				{
+					this.resolvedIcon = thing.Graphic.ExtractInnerGraphicFor(thing).MatAt(thing.def.defaultPlacingRot, null).mainTexture;
+				}
+			}
+
+			public void DrawIcon(Rect outerRect)
+			{
+				//t = t.GetInnerIfMinified();
+				GUI.color = this.drawColor;
+				Widgets.DrawTextureRotated(outerRect, this.resolvedIcon, this.resolvedIconAngle);
 				GUI.color = Color.white;
 			}
 		}
