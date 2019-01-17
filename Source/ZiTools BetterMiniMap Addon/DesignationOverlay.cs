@@ -28,11 +28,11 @@ namespace ZiTools_BetterMiniMap
 			var marks = map.designationManager.allDesignations.FindAll(d => d.def.defName == "ObjectSeekerMark");
 			foreach (var des in marks)
 			{
-				base.CreateMarker(des.target.Cell, 4, UnityEngine.Color.magenta, BetterMiniMapSettings.FadedColor(UnityEngine.Color.magenta), 0.5f);
+				base.CreateMarker(des.target.Cell, 6, UnityEngine.Color.magenta, BetterMiniMapSettings.FadedColor(UnityEngine.Color.magenta), 0.5f);
 			}
 			foreach (var des in marks)
 			{
-				base.CreateMarker(des.target.Cell, 2, UnityEngine.Color.black, BetterMiniMapSettings.FadedColor(UnityEngine.Color.black), 0.5f);
+				base.CreateMarker(des.target.Cell, 4, UnityEngine.Color.black, BetterMiniMapSettings.FadedColor(UnityEngine.Color.black), 0.5f);
 			}
 		}
 

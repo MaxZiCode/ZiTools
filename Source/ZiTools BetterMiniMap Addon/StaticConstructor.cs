@@ -17,11 +17,8 @@ namespace ZiTools_BetterMiniMap
 	{
         static StaticConstructor()
 		{
-			if (ModLister.AllInstalledMods.FirstOrDefault(m => m.Name == "BetterMiniMap")?.Active == true)
-			{
-				var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.addonconstructor");
-				harmony.PatchAll(Assembly.GetExecutingAssembly());
-			}
+			var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.addonconstructor");
+			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
 		[HarmonyPatch(typeof(OverlayManager), MethodType.Constructor, new Type[] { typeof(Map) })]
