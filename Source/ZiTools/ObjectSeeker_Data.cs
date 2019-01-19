@@ -32,7 +32,7 @@ namespace ZiTools
 		Dictionary<CategoryOfObjects, List<string>> CategoriesDict = new Dictionary<CategoryOfObjects, List<string>> //Category - defNames
 			{ { CategoryOfObjects.Favorites, new List<string>() } };
 		Dictionary<string, string> ThingsParams = new Dictionary<string, string>(); //defName - parameter
-		List<string> DefsWithParams = new List<string>();
+		Dictionary<string, string> labelsDict = new Dictionary<string, string>(); //defName - name
 
 		public readonly Dictionary<CategoryOfObjects, string> NamesOfCategoriesDict = new Dictionary<CategoryOfObjects, string>
 		{
@@ -57,7 +57,7 @@ namespace ZiTools
 			}
 		}
 
-		public string NameToSeek
+		public string DefNameToSeek
 		{
 			get => _defToSeek;
 			set
@@ -69,21 +69,20 @@ namespace ZiTools
 			}
 		}
 
-		public string SelectedCategoryName { get => CheckDictForErrors(NamesOfCategoriesDict, SelectedCategory); }
+		public string SelectedCategoryName { get => NamesOfCategoriesDict[SelectedCategory]; }
 		public CategoryOfObjects SelectedCategory { get; set; }
-		public List<string> NamesInSelectedCategory { get => CategoriesDict[SelectedCategory]; } // TODO: add labels
-		public List<string> NamesInFavourites { get => CategoriesDict[CategoryOfObjects.Favorites]; } // TODO: add labels
+		public List<string> DefNamesInFavourites { get => CategoriesDict[CategoryOfObjects.Favorites]; } // TODO: add labels
 
 		public CategoryOfObjects GetCategoryViaInt(int i) => (CategoryOfObjects)Enum.Parse(typeof(CategoryOfObjects), i.ToString());
 
-		public Texture2D GetCategoryTexture(CategoryOfObjects category) => CheckDictForErrors(this.TexturesOfCategoriesDict, category);
+		public Texture2D GetCategoryTexture(CategoryOfObjects category) => TexturesOfCategoriesDict[category];
 
-		public string GetParameter(string label)
+		public string GetParameter(string defName)
 		{
 			try
 			{
-				if (ThingsParams.ContainsKey(label))
-					return ThingsParams[label];
+				if (ThingsParams.ContainsKey(defName))
+					return ThingsParams[defName];
 				else
 					return "0";
 			}
@@ -92,6 +91,22 @@ namespace ZiTools
 				Log.Error(ex.ToString());
 				return "error";
 			}
+		}
+
+		public List<string> GetDefNames(string word)
+		{
+			List<string> names = CategoriesDict[SelectedCategory];
+			if (!string.IsNullOrEmpty(word))
+				names = (CategoriesDict[SelectedCategory].Where(k => labelsDict[k].ToLower().Contains(word.ToLower()))).ToList();
+			return names;
+		}
+
+		public string GetLabel(string defName)
+		{
+			if (labelsDict.TryGetValue(defName, out string v))
+				return v;
+			else
+				return defName;
 		}
 
 		public void DrawIcon(string defName, Rect outerRect)
@@ -115,7 +130,7 @@ namespace ZiTools
 
 		public void Clear()
 		{
-			NameToSeek = null;
+			DefNameToSeek = null;
 			MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
 			UpdateAction();
 		}
@@ -128,7 +143,7 @@ namespace ZiTools
 
 		public void FindAll()
 		{
-			if (TexturesOfCategoriesDict == null) //works only after a loading game
+			if (TexturesOfCategoriesDict == null) // NOTE: works only after a loading game
 				this.InitializeTextures();
 #if DEBUG
 			Stopwatch sw = Stopwatch.StartNew();
@@ -156,7 +171,7 @@ namespace ZiTools
 				if (_mapInProcess.fogGrid.IsFogged(location))
 					continue;
 				TerrainDef ter = location.GetTerrain(_mapInProcess);
-				FillNewData<TerrainDef>(location, ter.defName, CategoryOfObjects.Terrains);
+				FillNewData<TerrainDef>(location, ter.defName, ter.label, CategoryOfObjects.Terrains);
 				if (!terrainIconsDict.ContainsKey(ter.defName))
 					terrainIconsDict.Add(ter.defName, new TerrainIconData(ter));
 				List<Thing> allThingsOnLocation = location.GetThingList(_mapInProcess);
@@ -165,12 +180,13 @@ namespace ZiTools
 					foreach (Thing currentThing in allThingsOnLocation)
 					{
 						string defName = currentThing.def.defName;
-						if (FillNewData<Plant>(location, defName, CategoryOfObjects.Plants, currentThing))
+						string label = currentThing.def.label;
+						if (FillNewData<Plant>(location, defName, label, CategoryOfObjects.Plants, currentThing))
 							continue;
-						if (FillNewData<Pawn>(location, defName, CategoryOfObjects.Pawns, currentThing))
+						if (FillNewData<Pawn>(location, defName, label, CategoryOfObjects.Pawns, currentThing))
 							continue;
 
-						if (FillNewData<Corpse>(location, defName, CategoryOfObjects.Corpses, currentThing))
+						if (FillNewData<Corpse>(location, defName, label, CategoryOfObjects.Corpses, currentThing))
 						{
 							CompRottable comp = ((Corpse)currentThing).GetComp<CompRottable>();
 							int currentTicksRemain = comp == null ? 0 : Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
@@ -185,15 +201,15 @@ namespace ZiTools
 							continue;
 						}
 
-						if (currentThing.Stuff != null) // TODO: move to label maker
+						if (currentThing.Stuff != null)
 						{
 							defName += $" ({currentThing.Stuff.defName})";
-							this.DefsWithParams.Add(defName);
+							label += $" ({currentThing.Stuff.LabelAsStuff})";
 						}
 
-						if (FillNewData<Building>(location, defName, CategoryOfObjects.Buildings, currentThing))
+						if (FillNewData<Building>(location, defName, label, CategoryOfObjects.Buildings, currentThing))
 							continue;
-						FillNewData<Thing>(location, defName, CategoryOfObjects.Others, currentThing);
+						FillNewData<Thing>(location, defName, label, CategoryOfObjects.Others, currentThing);
 					}
 				}
 			}
@@ -237,11 +253,11 @@ namespace ZiTools
 				if (curCateg == CategoryOfObjects.Corpses)
 					CategoriesDict[curCateg].Sort(comparer);
 				else
-					CategoriesDict[curCateg].Sort();
+					CategoriesDict[curCateg].Sort(); // NOTE: keep the sorting by defName? I guess so
 			}
 
-			// NameToSeek checking
-			if (NameToSeek != null && !this.LocationsDict.ContainsKey(this.NameToSeek))
+			// DefNameToSeek checking
+			if (DefNameToSeek != null && !this.LocationsDict.ContainsKey(this.DefNameToSeek))
 				Clear();
 #if DEBUG
 			sw.Stop();
@@ -249,39 +265,27 @@ namespace ZiTools
 #endif
 		}
 
-		bool FillNewData<T>(IntVec3 location, string label, CategoryOfObjects category, Thing currentThing = null)
+		bool FillNewData<T>(IntVec3 location, string defname, string label, CategoryOfObjects category, Thing currentThing = null)
 		{
 			if (currentThing is T || currentThing == null)
 			{
-				if (currentThing != null && !thingIconsDict.ContainsKey(label))
-					thingIconsDict.Add(label, new ThingIconData(currentThing));
+				if (!labelsDict.ContainsKey(defname))
+					labelsDict.Add(defname, label);
+				if (currentThing != null && !thingIconsDict.ContainsKey(defname))
+					thingIconsDict.Add(defname, new ThingIconData(currentThing));
 
-				if (!CategoriesDict[category].Contains(label))
-					CategoriesDict[category].Add(label);
+				if (!CategoriesDict[category].Contains(defname))
+					CategoriesDict[category].Add(defname);
 
-				if (LocationsDict.ContainsKey(label))
-					LocationsDict[label].Add(location);
+				if (LocationsDict.ContainsKey(defname))
+					LocationsDict[defname].Add(location);
 				else
-					LocationsDict.Add(label, new List<IntVec3>(new IntVec3[] { location }));
+					LocationsDict.Add(defname, new List<IntVec3>(new IntVec3[] { location }));
 
 				return true;
 			}
 			else
 				return false;
-		}
-
-		U CheckDictForErrors<T, U>(Dictionary<T, U> dict, T key)
-		{
-			try
-			{
-				U result = dict[key];
-				return result;
-			}
-			catch (Exception ex)
-			{
-				Log.Error($"ZiTools dictionary {dict.ToStringSafe()} error: " + ex);
-				return default(U);
-			}
 		}
 
 		void InitializeTextures()

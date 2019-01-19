@@ -46,7 +46,6 @@ namespace ZiTools
 			Rect updateButtonRect = new Rect(textFieldRect.xMax + 2f, textFieldRect.y, textFieldH, textFieldH);
 
 			Widgets.Label(titleRect, "ZiT_ObjectsSeekerLabel".Translate());
-			_text = Widgets.TextField(textFieldRect, _text);
 			if (Widgets.ButtonImageWithBG(updateButtonRect, ContentFinder<Texture2D>.Get("UI/Update Button", true)))
 			{
 				ODB.Update();
@@ -94,6 +93,7 @@ namespace ZiTools
 				}
 			}
 
+			_text = Widgets.TextField(textFieldRect, _text);
 			float curY = textFieldRect.yMax;
 			Rect mainRect = new Rect(inRect) { yMin = curY, xMax = catButtRect.x };
 			if (!ODB.IsSelectedCategoryHaveObjects())
@@ -102,25 +102,22 @@ namespace ZiTools
 				return;
 			}
 
-			float objCount = string.IsNullOrEmpty(_text) ? // TODO: change search
-				ODB.NamesInSelectedCategory.Count :
-				(ODB.NamesInSelectedCategory.FindAll(i => i.Contains(_text))).Count;
-			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (objCount + 1) * lineHeight);
+			List<string> allNames = ODB.GetDefNames(_text);
+			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (allNames.Count + 1) * lineHeight);
 			curY = rect1.y;
 			Widgets.BeginScrollView(mainRect, ref _scrollPosition, rect1, true);
 			GUI.BeginGroup(rect1);
 			string favChange = null;
-			this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, lineHeight), "ZiT_NameLabel".Translate(), ODB.SelectedCategory == CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), ref favChange, false);
+			Rect titlePosition = new Rect(rect1.x, curY, rect1.width, lineHeight);
+			this.GroupOfThingsMaker(titlePosition, "ZiT_NameLabel".Translate(), ODB.SelectedCategory == CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate(), ref favChange, false);
 			curY += lineHeight;
-			foreach (string currentName in ODB.NamesInSelectedCategory)
+			foreach (string currentName in allNames)
 			{
-				if (string.IsNullOrEmpty(_text) || currentName.Contains(_text))
-				{ 
-					this.GroupOfThingsMaker(new Rect(rect1.x, curY, rect1.width, lineHeight), currentName, ODB.GetParameter(currentName), ref favChange);
-					curY += lineHeight;
-				}
+				Rect position = new Rect(rect1.x, curY, rect1.width, lineHeight);
+				this.GroupOfThingsMaker(position, currentName, ODB.GetParameter(currentName), ref favChange);
+				curY += lineHeight;
 			}
-			List<string> list = ODB.NamesInFavourites;
+			List<string> list = ODB.DefNamesInFavourites;
 			if (!String.IsNullOrEmpty(favChange))
 			{
 				if (!list.Contains(favChange))
@@ -142,23 +139,23 @@ namespace ZiTools
 
 		public static void DrawWindow() => Find.WindowStack.Add(new ObjectSeeker_Window());
 
-		void GroupOfThingsMaker(Rect inRect, string label, string param, ref string favChange, bool createFindButton = true)
+		void GroupOfThingsMaker(Rect inRect, string defName, string param, ref string favChange, bool createFindButton = true)
 		{
 			Rect rectImage = new Rect(inRect.x, inRect.y, inRect.height, inRect.height);
 			Rect rectLabel = new Rect(inRect.x, inRect.y, inRect.width - inRect.height, inRect.height);
 			Rect rectFavButton = new Rect(rectLabel.xMax, inRect.y, inRect.height, inRect.height);
 			if (createFindButton)
 			{
-				if (label == ODB.NameToSeek)
+				if (defName == ODB.DefNameToSeek)
 					Widgets.DrawHighlightSelected(rectLabel);
 				else
 					Widgets.DrawHighlightIfMouseover(rectLabel);
-				ODB.DrawIcon(label, rectImage);
+				ODB.DrawIcon(defName, rectImage);
 				if (Widgets.ButtonInvisible(rectLabel))
 				{
-					if (ODB.NameToSeek != label)
+					if (ODB.DefNameToSeek != defName)
 					{
-						ODB.NameToSeek = label;
+						ODB.DefNameToSeek = defName;
 						MapMarksManager.SetMarks(MapMarksManager.ObjectSeeker_MarkDef, ODB.Positions);
 						ObjectsDatabase.DoUpdateAction();
 						SoundDefOf.Designate_PlanAdd.PlayOneShotOnCamera(); 
@@ -170,15 +167,16 @@ namespace ZiTools
 					}
 				}
 				
-				if (Mouse.IsOver(rectFavButton) || ODB.NamesInFavourites.Contains(label))
+				if (Mouse.IsOver(rectFavButton) || ODB.DefNamesInFavourites.Contains(defName))
 				{
 					if (Widgets.ButtonImage(rectFavButton.ScaledBy(0.85f), ODB.GetCategoryTexture(CategoryOfObjects.Favorites)))
 					{
-						favChange = label;
+						favChange = defName;
 						SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
 					}
 				}
 			}
+			string label = ODB.GetLabel(defName);
 			rectLabel.xMin = rectImage.xMax + 2f;
 			TooltipHandler.TipRegion(rectLabel, label);
 			Rect rectParam = new Rect(inRect.width - Text.CalcSize(param).x, inRect.y, Text.CalcSize(param).x, inRect.height);
