@@ -5,9 +5,6 @@ using Verse;
 using Verse.Sound;
 using RimWorld;
 
-using static ZiTools.StaticConstructor;
-using static ZiTools.ObjectsDatabase;
-
 namespace ZiTools
 {
 	public class ObjectSeeker_Window : Window
@@ -53,6 +50,7 @@ namespace ZiTools
 			}
 			TooltipHandler.TipRegion(updateButtonRect, "ZiT_UpdateButtonLabel".Translate());
 			MouseoverSounds.DoRegion(updateButtonRect, SoundDefOf.Mouseover_Category);
+			_text = Widgets.TextField(textFieldRect, _text); //it's here for bigger font
 			Text.Font = GameFont.Small;
 
 			float lineHeight = Text.LineHeight;
@@ -92,8 +90,7 @@ namespace ZiTools
 					catButtRect.y += catButtRect.height + 1f;
 				}
 			}
-
-			_text = Widgets.TextField(textFieldRect, _text);
+			
 			float curY = textFieldRect.yMax;
 			Rect mainRect = new Rect(inRect) { yMin = curY, xMax = catButtRect.x };
 			if (!ODB.IsSelectedCategoryHaveObjects())

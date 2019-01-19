@@ -246,14 +246,14 @@ namespace ZiTools
 			}
 			
 			// Sorting
-			CorpseTimeComparer comparer = new CorpseTimeComparer(corpsesTimeRemainDict);
+			CorpseTimeComparer corpseComparer = new CorpseTimeComparer(corpsesTimeRemainDict);
+			LabelsComparer labelsComparer = new LabelsComparer(this.labelsDict);
 			for (int i = 0; i < Enum.GetNames(typeof(CategoryOfObjects)).Length; i++)
 			{
 				CategoryOfObjects curCateg = this.GetCategoryViaInt(i);
+				CategoriesDict[curCateg].Sort(labelsComparer);
 				if (curCateg == CategoryOfObjects.Corpses)
-					CategoriesDict[curCateg].Sort(comparer);
-				else
-					CategoriesDict[curCateg].Sort(); // NOTE: keep the sorting by defName? I guess so
+					CategoriesDict[curCateg].Sort(corpseComparer);
 			}
 
 			// DefNameToSeek checking

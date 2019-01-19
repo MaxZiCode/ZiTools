@@ -24,4 +24,19 @@ namespace ZiTools
 				return 0;
 		}
 	}
+
+	class LabelsComparer : IComparer<string>
+	{
+		readonly Dictionary<string, string> labelsDict;
+
+		public LabelsComparer(Dictionary<string, string> dict)
+		{
+			this.labelsDict = dict ?? throw new ArgumentNullException(nameof(dict));
+		}
+
+		int IComparer<string>.Compare(string x, string y)
+		{
+			return labelsDict[x].CompareTo(labelsDict[y]);
+		}
+	}
 }

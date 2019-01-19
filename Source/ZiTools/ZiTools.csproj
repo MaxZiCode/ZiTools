@@ -50,7 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CorpseTimeComparer.cs" />
+    <Compile Include="Comparers.cs" />
     <Compile Include="GameComponent.cs" />
     <Compile Include="MapMarksManager.cs" />
     <Compile Include="ObjectSeeker_Window.cs" />
