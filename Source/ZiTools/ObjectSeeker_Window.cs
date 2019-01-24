@@ -146,7 +146,6 @@ namespace ZiTools
 		{
 			string label = unit.Label;
 			string param = unit.Parameter;
-			favChange = null;
 
 			Rect rectImage = new Rect(inRect.x, inRect.y, inRect.height, inRect.height);
 			Rect rectParam = new Rect(inRect.width - Text.CalcSize(param).x - rectImage.width, inRect.y, Text.CalcSize(param).x, inRect.height);

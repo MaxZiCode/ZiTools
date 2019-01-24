@@ -15,6 +15,7 @@ namespace ZiTools
 		public DBUnit(string label)
 		{
 			this.Label = label;
+			this.CleanData();
 		}
 
 		public string Label { get; private set; }
@@ -25,7 +26,7 @@ namespace ZiTools
 
 		public float Area { get; set; }
 
-		public int CorpseTime { get; private set; } = int.MaxValue;
+		public int CorpseTime { get; private set; }
 
 		public void SetPatameter(CategoryOfObjects category)
 		{
@@ -59,8 +60,8 @@ namespace ZiTools
 		public void CleanData()
 		{
 			Locations.Clear();
-			CorpseTime = new int();
-			Parameter = string.Empty;
+			CorpseTime = int.MaxValue;
+			Parameter = "0";
 		}
 	}
 }

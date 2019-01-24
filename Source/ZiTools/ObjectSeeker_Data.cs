@@ -138,8 +138,12 @@ namespace ZiTools
 					string defName = currentThing.def.defName;
 					string label = currentThing.def.label;
 
+					if (FillNewData<Building>(currentThing, CategoryOfObjects.Buildings, location))
+						continue;
+
 					if (FillNewData<Plant>(currentThing, CategoryOfObjects.Plants, location))
 						continue;
+
 					if (FillNewData<Pawn>(currentThing, CategoryOfObjects.Pawns, location))
 						continue;
 
@@ -150,15 +154,6 @@ namespace ZiTools
 						unitsDict[defName].CheskAndSetCorpseTime(currentTicksRemain);
 						continue;
 					}
-
-					if (currentThing.Stuff != null)
-					{
-						defName += $" ({currentThing.Stuff.defName})";
-						label += $" ({currentThing.Stuff.LabelAsStuff})";
-					}
-
-					if (FillNewData<Building>(currentThing, CategoryOfObjects.Buildings, location))
-						continue;
 
 					FillNewData<Thing>(currentThing, CategoryOfObjects.Others, location); 
 				}
@@ -171,16 +166,12 @@ namespace ZiTools
 				CategoriesDict[CategoryOfObjects.All].AddRange(list);
 			}
 
-			if (CategoriesDict[CategoryOfObjects.Favorites].Count > 0) // TODO: Change fav category
-				CategoriesDict[CategoryOfObjects.Favorites].RemoveAll(n => !CategoriesDict[CategoryOfObjects.All].Contains(n));
-
 			// Sorting
 			foreach (var c in CategoriesDict.Keys)
 			{
 				CategoriesDict[c].Sort((u1, u2) => string.Compare(u1.Label, u2.Label));
 			}
 			CategoriesDict[CategoryOfObjects.Corpses].Sort((u1, u2) => u1.CorpseTime.CompareTo(u2.CorpseTime));
-			;
 
 			// Filling parametres
 			foreach (var unit in this.CategoriesDict[CategoryOfObjects.All])
@@ -202,7 +193,13 @@ namespace ZiTools
 			if (thing is T)
 			{
 				string defName = thing.def.defName;
-				if (AddUnit(defName, thing.def.label, category, location))
+				string label = thing.def.label;
+				if (thing.Stuff != null)
+				{
+					defName += $" ({thing.Stuff.defName})";
+					label += $" ({thing.Stuff.LabelAsStuff})";
+				}
+				if (AddUnit(defName, label, category, location))
 				{
 					unitsDict[defName].Icon = new ThingIconData(thing);
 					unitsDict[defName].Area = thing.def.size.Area;
