@@ -25,7 +25,7 @@ namespace ZiTools
 
 		public float Area { get; set; }
 
-		public int CorpseTime { get; private set; }
+		public int CorpseTime { get; private set; } = int.MaxValue;
 
 		public void SetPatameter(CategoryOfObjects category)
 		{
@@ -33,7 +33,7 @@ namespace ZiTools
 			{
 				case CategoryOfObjects.Corpses:
 				{
-					if (CorpseTime > 0)
+					if (CorpseTime > 0 && CorpseTime < int.MaxValue)
 						Parameter = CorpseTime.ToStringTicksToDays();
 					else
 						Parameter = "-";

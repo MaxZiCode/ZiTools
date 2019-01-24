@@ -113,11 +113,11 @@ namespace ZiTools
 			};
 			Rect position = new Rect(rect1.x, curY, rect1.width, lineHeight);
 
-			this.DrawObjectsList(position, cusomUnit, out favChange, true);
+			this.DrawObjectsList(position, cusomUnit, ref favChange, true);
 			position.y += lineHeight;
 			foreach (var unit in units)
 			{
-				this.DrawObjectsList(position, unit, out favChange);
+				this.DrawObjectsList(position, unit, ref favChange);
 				position.y += lineHeight;
 			}
 			List<DBUnit> favList = ODB.UnitsInFavourites;
@@ -142,7 +142,7 @@ namespace ZiTools
 
 		public static void DrawWindow() => Find.WindowStack.Add(new ObjectSeeker_Window());
 
-		void DrawObjectsList(Rect inRect, DBUnit unit, out DBUnit favChange, bool onlyLabel = false)
+		void DrawObjectsList(Rect inRect, DBUnit unit, ref DBUnit favChange, bool onlyLabel = false)
 		{
 			string label = unit.Label;
 			string param = unit.Parameter;
@@ -152,20 +152,20 @@ namespace ZiTools
 			Rect rectParam = new Rect(inRect.width - Text.CalcSize(param).x - rectImage.width, inRect.y, Text.CalcSize(param).x, inRect.height);
 			Rect rectLabel = new Rect(rectImage.xMax + 2f, inRect.y, inRect.width - 2 * rectImage.width - rectParam.width, inRect.height);
 			Rect rectFavButton = new Rect(rectImage) { x = rectParam.xMax };
+			Rect rectSearchButton = new Rect(inRect) { width = inRect.width - rectFavButton.width };
 			
 			Widgets.Label(rectLabel.LeftPartPixels(rectLabel.width), label);
 			Widgets.Label(rectParam.RightPartPixels(rectParam.width), param);
-
-			TooltipHandler.TipRegion(rectLabel, label);
-
+			
 			if (!onlyLabel)
 			{
+				TooltipHandler.TipRegion(rectLabel, label);
 				if (unit == ODB.UnitToSeek)
-					Widgets.DrawHighlightSelected(inRect);
+					Widgets.DrawHighlightSelected(rectSearchButton);
 				else
-					Widgets.DrawHighlightIfMouseover(inRect);
+					Widgets.DrawHighlightIfMouseover(rectSearchButton);
 
-				if (Widgets.ButtonInvisible(inRect))
+				if (Widgets.ButtonInvisible(rectSearchButton))
 				{
 					if (unit != ODB.UnitToSeek)
 					{
