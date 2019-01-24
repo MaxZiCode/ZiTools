@@ -12,27 +12,26 @@ using static ZiTools.StaticConstructor;
 
 namespace ZiTools
 {
-	public class ObjectsDatabase : IExposable
+	public partial class ObjectsDatabase : IExposable
 	{
 		public ObjectsDatabase()
 		{
-			_defToSeek = null;
+			_unitToSeek = null;
 			SelectedCategory = CategoryOfObjects.Favorites;
 		}
 
-		string _defToSeek; //defName
+		DBUnit _unitToSeek;
+
 		Map _mapInProcess;
 
 		static Action UpdateAction = delegate { };
 
 		Dictionary<CategoryOfObjects, Texture2D> TexturesOfCategoriesDict;
-		Dictionary<string, List<IntVec3>> LocationsDict = new Dictionary<string, List<IntVec3>>(); //defName - locations
-		Dictionary<string, ThingIconData> thingIconsDict = new Dictionary<string, ThingIconData>(); //ThingIconData for textures
-		Dictionary<string, TerrainIconData> terrainIconsDict = new Dictionary<string, TerrainIconData>(); //TerrainIconData for terrain textures 
-		Dictionary<CategoryOfObjects, List<string>> CategoriesDict = new Dictionary<CategoryOfObjects, List<string>> //Category - defNames
-			{ { CategoryOfObjects.Favorites, new List<string>() } };
-		Dictionary<string, string> ThingsParams = new Dictionary<string, string>(); //defName - parameter
-		Dictionary<string, string> labelsDict = new Dictionary<string, string>(); //defName - name
+
+		Dictionary<CategoryOfObjects, List<DBUnit>> CategoriesDict = new Dictionary<CategoryOfObjects, List<DBUnit>> //Category - units
+			{ { CategoryOfObjects.Favorites, new List<DBUnit>() } };
+
+		Dictionary<string, DBUnit> unitsDict = new Dictionary<string, DBUnit>(); // defName - unit;
 
 		public readonly Dictionary<CategoryOfObjects, string> NamesOfCategoriesDict = new Dictionary<CategoryOfObjects, string>
 		{
@@ -50,73 +49,35 @@ namespace ZiTools
 		{
 			get
 			{
-				if (_defToSeek != null)
-					return LocationsDict[_defToSeek];
+				if (_unitToSeek != null)
+					return _unitToSeek.Locations;
 				else
 					return null;
 			}
 		}
 
-		public string DefNameToSeek
+		public DBUnit UnitToSeek
 		{
-			get => _defToSeek;
-			set
-			{
-				if (!string.IsNullOrEmpty(value) && CategoriesDict[CategoryOfObjects.All].Contains(value))
-					_defToSeek = value;
-				else
-					_defToSeek = null;
-			}
+			get => _unitToSeek;
+			set => _unitToSeek = CategoriesDict[CategoryOfObjects.All].Contains(value) ? value : null;
 		}
 
 		public string SelectedCategoryName { get => NamesOfCategoriesDict[SelectedCategory]; }
+
 		public CategoryOfObjects SelectedCategory { get; set; }
-		public List<string> DefNamesInFavourites { get => CategoriesDict[CategoryOfObjects.Favorites]; } // TODO: add labels
+
+		public List<DBUnit> UnitsInFavourites { get => CategoriesDict[CategoryOfObjects.Favorites]; } // TODO: add labels
 
 		public CategoryOfObjects GetCategoryViaInt(int i) => (CategoryOfObjects)Enum.Parse(typeof(CategoryOfObjects), i.ToString());
 
 		public Texture2D GetCategoryTexture(CategoryOfObjects category) => TexturesOfCategoriesDict[category];
 
-		public string GetParameter(string defName)
+		public List<DBUnit> GetUnitsByWord(string word)
 		{
-			try
-			{
-				if (ThingsParams.ContainsKey(defName))
-					return ThingsParams[defName];
-				else
-					return "0";
-			}
-			catch (Exception ex)
-			{
-				Log.Error(ex.ToString());
-				return "error";
-			}
-		}
-
-		public List<string> GetDefNames(string word)
-		{
-			List<string> names = CategoriesDict[SelectedCategory];
+			List<DBUnit> names = CategoriesDict[SelectedCategory];
 			if (!string.IsNullOrEmpty(word))
-				names = (CategoriesDict[SelectedCategory].Where(k => labelsDict[k].ToLower().Contains(word.ToLower()))).ToList();
+				names = (CategoriesDict[SelectedCategory].Where(u => u.Label.ToLower().Contains(word.ToLower()))).ToList();
 			return names;
-		}
-
-		public string GetLabel(string defName)
-		{
-			if (labelsDict.TryGetValue(defName, out string v))
-				return v;
-			else
-				return defName;
-		}
-
-		public void DrawIcon(string defName, Rect outerRect)
-		{
-			if (thingIconsDict.ContainsKey(defName) && thingIconsDict?[defName] != null)
-				thingIconsDict[defName].DrawIcon(outerRect);
-			else if (terrainIconsDict.ContainsKey(defName) && terrainIconsDict?[defName] != null)
-				terrainIconsDict[defName].DrawIcon(outerRect);
-			else
-				Log.Warning($"Object seeker could not load an icon for {defName} def");
 		}
 
 		public bool IsSelectedCategoryHaveObjects() => CategoriesDict[SelectedCategory].Count > 0;
@@ -130,7 +91,7 @@ namespace ZiTools
 
 		public void Clear()
 		{
-			DefNameToSeek = null;
+			UnitToSeek = null;
 			MapMarksManager.RemoveMarks(MapMarksManager.ObjectSeeker_MarkDef);
 			UpdateAction();
 		}
@@ -150,114 +111,85 @@ namespace ZiTools
 #endif
 			this._mapInProcess = Find.CurrentMap;
 
-			LocationsDict.Clear();
-			ThingsParams.Clear();
-			
-			List<string> favourites = CategoriesDict[CategoryOfObjects.Favorites];
-			CategoriesDict = new Dictionary<CategoryOfObjects, List<string>>
+			foreach (var u in unitsDict.Values)
+				u.CleanData();
+
+			List<DBUnit> favourites = CategoriesDict[CategoryOfObjects.Favorites];
+			CategoriesDict = new Dictionary<CategoryOfObjects, List<DBUnit>>
 			{
 				{ CategoryOfObjects.Favorites, favourites },
-				{ CategoryOfObjects.All, new List<string>() },
-				{ CategoryOfObjects.Buildings, new List<string>() },
-				{ CategoryOfObjects.Terrains, new List<string>() },
-				{ CategoryOfObjects.Plants, new List<string>() },
-				{ CategoryOfObjects.Pawns, new List<string>() },
-				{ CategoryOfObjects.Corpses, new List<string>() },
-				{ CategoryOfObjects.Others, new List<string>() }
+				{ CategoryOfObjects.All, new List<DBUnit>() },
+				{ CategoryOfObjects.Buildings, new List<DBUnit>() },
+				{ CategoryOfObjects.Terrains, new List<DBUnit>() },
+				{ CategoryOfObjects.Plants, new List<DBUnit>() },
+				{ CategoryOfObjects.Pawns, new List<DBUnit>() },
+				{ CategoryOfObjects.Corpses, new List<DBUnit>() },
+				{ CategoryOfObjects.Others, new List<DBUnit>() }
 			};
-			Dictionary<string, int> corpsesTimeRemainDict = new Dictionary<string, int>();
 			foreach (IntVec3 location in _mapInProcess.AllCells)
 			{
 				if (_mapInProcess.fogGrid.IsFogged(location))
 					continue;
 				TerrainDef ter = location.GetTerrain(_mapInProcess);
-				FillNewData<TerrainDef>(location, ter.defName, ter.label, CategoryOfObjects.Terrains);
-				if (!terrainIconsDict.ContainsKey(ter.defName))
-					terrainIconsDict.Add(ter.defName, new TerrainIconData(ter));
+				FillNewDataTerrain(ter, location);
 				List<Thing> allThingsOnLocation = location.GetThingList(_mapInProcess);
-				if (allThingsOnLocation.Count > 0)
+				foreach (Thing currentThing in allThingsOnLocation)
 				{
-					foreach (Thing currentThing in allThingsOnLocation)
+					string defName = currentThing.def.defName;
+					string label = currentThing.def.label;
+
+					if (FillNewData<Plant>(currentThing, CategoryOfObjects.Plants, location))
+						continue;
+					if (FillNewData<Pawn>(currentThing, CategoryOfObjects.Pawns, location))
+						continue;
+
+					if (FillNewData<Corpse>(currentThing, CategoryOfObjects.Corpses, location))
 					{
-						string defName = currentThing.def.defName;
-						string label = currentThing.def.label;
-						if (FillNewData<Plant>(location, defName, label, CategoryOfObjects.Plants, currentThing))
-							continue;
-						if (FillNewData<Pawn>(location, defName, label, CategoryOfObjects.Pawns, currentThing))
-							continue;
-
-						if (FillNewData<Corpse>(location, defName, label, CategoryOfObjects.Corpses, currentThing))
-						{
-							CompRottable comp = ((Corpse)currentThing).GetComp<CompRottable>();
-							int currentTicksRemain = comp == null ? 0 : Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
-							currentTicksRemain = currentTicksRemain > 0 ? currentTicksRemain : 0;
-							if (corpsesTimeRemainDict.ContainsKey(defName))
-							{
-								if (corpsesTimeRemainDict[defName] > currentTicksRemain && currentTicksRemain > 0)
-									corpsesTimeRemainDict[defName] = currentTicksRemain;
-							}
-							else
-								corpsesTimeRemainDict.Add(defName, currentTicksRemain);
-							continue;
-						}
-
-						if (currentThing.Stuff != null)
-						{
-							defName += $" ({currentThing.Stuff.defName})";
-							label += $" ({currentThing.Stuff.LabelAsStuff})";
-						}
-
-						if (FillNewData<Building>(location, defName, label, CategoryOfObjects.Buildings, currentThing))
-							continue;
-						FillNewData<Thing>(location, defName, label, CategoryOfObjects.Others, currentThing);
+						CompRottable comp = ((Corpse)currentThing).GetComp<CompRottable>();
+						int currentTicksRemain = comp == null ? 0 : Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
+						unitsDict[defName].CheskAndSetCorpseTime(currentTicksRemain);
+						continue;
 					}
+
+					if (currentThing.Stuff != null)
+					{
+						defName += $" ({currentThing.Stuff.defName})";
+						label += $" ({currentThing.Stuff.LabelAsStuff})";
+					}
+
+					if (FillNewData<Building>(currentThing, CategoryOfObjects.Buildings, location))
+						continue;
+
+					FillNewData<Thing>(currentThing, CategoryOfObjects.Others, location); 
 				}
 			}
-			
+
 			// Filling All category
-			var AllObjects = (from k in CategoriesDict.Keys where k != CategoryOfObjects.All && k != CategoryOfObjects.Favorites select CategoriesDict[k]);
+			var AllObjects = from k in CategoriesDict.Keys where k != CategoryOfObjects.All && k != CategoryOfObjects.Favorites select CategoriesDict[k];
 			foreach (var list in AllObjects)
 			{
 				CategoriesDict[CategoryOfObjects.All].AddRange(list);
 			}
+
 			if (CategoriesDict[CategoryOfObjects.Favorites].Count > 0) // TODO: Change fav category
 				CategoriesDict[CategoryOfObjects.Favorites].RemoveAll(n => !CategoriesDict[CategoryOfObjects.All].Contains(n));
-			
-			// Filling parametres
-			foreach (string defName in this.CategoriesDict[CategoryOfObjects.All])
-			{
-				if (CategoriesDict[CategoryOfObjects.Corpses].Contains(defName))
-				{
-					if (corpsesTimeRemainDict[defName] == 0)
-					{
-						ThingsParams.Add(defName, "-");
-					}
-					else
-						ThingsParams.Add(defName, corpsesTimeRemainDict[defName].ToStringTicksToDays());
-					ThingsParams[defName] += $" ({LocationsDict[defName].Count})";
-				}
-				else
-				{
-					if (!LocationsDict.ContainsKey(defName))
-						ThingsParams.Add(defName, "0");
-					else
-						ThingsParams.Add(defName, LocationsDict[defName].Count.ToString());
-				}
-			}
-			
-			// Sorting
-			CorpseTimeComparer corpseComparer = new CorpseTimeComparer(corpsesTimeRemainDict);
-			LabelsComparer labelsComparer = new LabelsComparer(this.labelsDict);
-			for (int i = 0; i < Enum.GetNames(typeof(CategoryOfObjects)).Length; i++)
-			{
-				CategoryOfObjects curCateg = this.GetCategoryViaInt(i);
-				CategoriesDict[curCateg].Sort(labelsComparer);
-				if (curCateg == CategoryOfObjects.Corpses)
-					CategoriesDict[curCateg].Sort(corpseComparer);
-			}
 
-			// DefNameToSeek checking
-			if (DefNameToSeek != null && !this.LocationsDict.ContainsKey(this.DefNameToSeek))
+			// Sorting
+			foreach (var c in CategoriesDict.Keys)
+			{
+				CategoriesDict[c].Sort((u1, u2) => string.Compare(u1.Label, u2.Label));
+			}
+			CategoriesDict[CategoryOfObjects.Corpses].Sort((u1, u2) => u1.CorpseTime.CompareTo(u2.CorpseTime));
+			;
+
+			// Filling parametres
+			foreach (var unit in this.CategoriesDict[CategoryOfObjects.All])
+				unit.SetPatameter(CategoryOfObjects.All);
+			foreach (var unit in this.CategoriesDict[CategoryOfObjects.Corpses])
+				unit.SetPatameter(CategoryOfObjects.Corpses);
+
+			// UnitToSeek checking
+			if (UnitToSeek != null && !this.CategoriesDict[CategoryOfObjects.All].Contains(this.UnitToSeek))
 				Clear();
 #if DEBUG
 			sw.Stop();
@@ -265,27 +197,49 @@ namespace ZiTools
 #endif
 		}
 
-		bool FillNewData<T>(IntVec3 location, string defname, string label, CategoryOfObjects category, Thing currentThing = null)
+		bool FillNewData<T>(Thing thing, CategoryOfObjects category, IntVec3 location)
 		{
-			if (currentThing is T || currentThing == null)
+			if (thing is T)
 			{
-				if (!labelsDict.ContainsKey(defname))
-					labelsDict.Add(defname, label);
-				if (currentThing != null && !thingIconsDict.ContainsKey(defname))
-					thingIconsDict.Add(defname, new ThingIconData(currentThing));
-
-				if (!CategoriesDict[category].Contains(defname))
-					CategoriesDict[category].Add(defname);
-
-				if (LocationsDict.ContainsKey(defname))
-					LocationsDict[defname].Add(location);
-				else
-					LocationsDict.Add(defname, new List<IntVec3>(new IntVec3[] { location }));
-
+				string defName = thing.def.defName;
+				if (AddUnit(defName, thing.def.label, category, location))
+				{
+					unitsDict[defName].Icon = new ThingIconData(thing);
+					unitsDict[defName].Area = thing.def.size.Area;
+				}
 				return true;
 			}
 			else
 				return false;
+		}
+
+		void FillNewDataTerrain(TerrainDef terrDef, IntVec3 location)
+		{
+			bool isNewUnit = AddUnit(terrDef.defName, terrDef.label, CategoryOfObjects.Terrains, location);
+			if (isNewUnit)
+				unitsDict[terrDef.defName].Icon = new TerrainIconData(terrDef);
+		}
+
+		bool AddUnit(string defName, string label, CategoryOfObjects category, IntVec3 location)
+		{
+			DBUnit unit;
+			bool isNewUnit;
+			if (!unitsDict.ContainsKey(defName))
+			{
+				unit = new DBUnit(label);
+				unitsDict.Add(defName, unit);
+				CategoriesDict[category].Add(unit);
+				isNewUnit = true;
+			}
+			else
+			{
+				unit = unitsDict[defName];
+				if (!CategoriesDict[category].Contains(unit))
+					CategoriesDict[category].Add(unit);
+				isNewUnit = false;
+			}
+			unit.Locations.Add(location);
+			return isNewUnit;
 		}
 
 		void InitializeTextures()
@@ -306,89 +260,11 @@ namespace ZiTools
 		public void ExposeData()
 		{
 			LogDebug("ExposeData started");
-			List<string> fav = CategoriesDict[CategoryOfObjects.Favorites];
-			Scribe_Collections.Look<string>(ref fav, "ObjectSeeker_favourites");
+			List<DBUnit> fav = CategoriesDict[CategoryOfObjects.Favorites];
+			Scribe_Collections.Look(ref fav, "ODB_favourites", LookMode.Reference);
 			if (fav != null)
 				CategoriesDict[CategoryOfObjects.Favorites] = fav;
 			LogDebug("ExposeData finished");
-		}
-
-		//optimized inner class for drawing a terrain icon
-		public class TerrainIconData 
-		{
-			readonly Texture2D icon;
-			Rect iconTexCoords;
-			readonly float iconAngle;
-			Color iconDrawColor;
-
-			public TerrainIconData(TerrainDef entDef)
-			{
-				this.iconDrawColor = entDef.uiIconColor;
-				this.icon = entDef.uiIcon;
-				this.iconTexCoords = new Rect(0f, 0f, 64f / (float)this.icon.width, 64f / (float)this.icon.height);
-				this.iconAngle = entDef.uiIconAngle;
-			}
-
-			public void DrawIcon(Rect outerRect)
-			{
-				GUI.color = this.iconDrawColor;
-				Widgets.DrawTextureFitted(outerRect, this.icon, 1f, Vector2.one, this.iconTexCoords, this.iconAngle);
-				GUI.color = Color.white;
-			}
-		}
-
-		//optimized inner class for drawing a thing icon
-		public class ThingIconData 
-		{
-			Color drawColor;
-			readonly float resolvedIconAngle;
-			readonly Texture resolvedIcon;
-
-			public const float ThingIconSize = 50f;
-
-			public ThingIconData(Thing thing)
-			{
-				this.drawColor = thing.DrawColor;
-				this.resolvedIconAngle = 0f;
-				if (!thing.def.uiIconPath.NullOrEmpty())
-				{
-					this.resolvedIcon = thing.def.uiIcon;
-					this.resolvedIconAngle = thing.def.uiIconAngle;
-				}
-				else if (thing is Pawn || thing is Corpse)
-				{
-					if (!(thing is Pawn pawn))
-					{
-						pawn = ((Corpse)thing).InnerPawn;
-					}
-					if (!pawn.RaceProps.Humanlike)
-					{
-						if (!pawn.Drawer.renderer.graphics.AllResolved)
-						{
-							pawn.Drawer.renderer.graphics.ResolveAllGraphics();
-						}
-						Material material = pawn.Drawer.renderer.graphics.nakedGraphic.MatAt(Rot4.East, null);
-						this.resolvedIcon = material.mainTexture;
-						this.drawColor = material.color;
-					}
-					else
-					{
-						this.resolvedIcon = PortraitsCache.Get(pawn, new Vector2(ThingIconSize, ThingIconSize), default(Vector3), 1f);
-					}
-				}
-				else
-				{
-					this.resolvedIcon = thing.Graphic.ExtractInnerGraphicFor(thing).MatAt(thing.def.defaultPlacingRot, null).mainTexture;
-				}
-			}
-
-			public void DrawIcon(Rect outerRect)
-			{
-				//t = t.GetInnerIfMinified();
-				GUI.color = this.drawColor;
-				Widgets.DrawTextureRotated(outerRect, this.resolvedIcon, this.resolvedIconAngle);
-				GUI.color = Color.white;
-			}
 		}
 	}
 
