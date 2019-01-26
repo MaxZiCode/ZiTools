@@ -179,7 +179,7 @@ namespace ZiTools
 						SoundDefOf.Designate_PlanRemove.PlayOneShotOnCamera();
 					}
 				}
-				unit.Icon.DrawIcon(rectImage);
+				unit.Icon?.DrawIcon(rectImage);
 				if (Mouse.IsOver(rectFavButton) || ODB.UnitsInFavourites.Contains(unit))
 				{
 					if (Widgets.ButtonImage(rectFavButton.ScaledBy(0.85f), ODB.GetCategoryTexture(CategoryOfObjects.Favorites)))

@@ -233,7 +233,10 @@ namespace ZiTools
 				unit = unitsDict[defName];
 				if (!CategoriesDict[category].Contains(unit))
 					CategoriesDict[category].Add(unit);
-				isNewUnit = false;
+				if (unit.Icon == null)
+					isNewUnit = true;
+				else
+					isNewUnit = false;
 			}
 			unit.Locations.Add(location);
 			return isNewUnit;
@@ -256,12 +259,15 @@ namespace ZiTools
 
 		public void ExposeData()
 		{
-			LogDebug("ExposeData started");
-			List<DBUnit> fav = CategoriesDict[CategoryOfObjects.Favorites];
-			Scribe_Collections.Look(ref fav, "ODB_favourites", LookMode.Reference);
-			if (fav != null)
-				CategoriesDict[CategoryOfObjects.Favorites] = fav;
-			LogDebug("ExposeData finished");
+			Dictionary<string, DBUnit> fav = new Dictionary<string, DBUnit>(unitsDict);
+			fav.RemoveAll(uDict => !CategoriesDict[CategoryOfObjects.Favorites].Contains(uDict.Value));
+			Scribe_Collections.Look(ref fav, "ZiT_ObjectsDatabase.Favourites");
+			if (Scribe.mode == LoadSaveMode.LoadingVars && fav != null)
+			{
+				CategoriesDict[CategoryOfObjects.Favorites] = fav.Values.ToList();
+				foreach (var k in fav.Keys)
+					unitsDict.Add(k, fav[k]);
+			}
 		}
 	}
 

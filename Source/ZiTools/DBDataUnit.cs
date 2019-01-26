@@ -8,8 +8,9 @@ using Verse;
 
 namespace ZiTools
 {
-	public class DBUnit
+	public class DBUnit : IExposable
 	{
+		private string _label;
 		public readonly List<IntVec3> Locations = new List<IntVec3>();
 
 		public DBUnit(string label)
@@ -18,7 +19,9 @@ namespace ZiTools
 			this.CleanData();
 		}
 
-		public string Label { get; private set; }
+		public DBUnit() : this(string.Empty) { }
+
+		public string Label { get => _label; private set => _label = value; }
 
 		public string Parameter { get; set; }
 
@@ -62,6 +65,11 @@ namespace ZiTools
 			Locations.Clear();
 			CorpseTime = int.MaxValue;
 			Parameter = "0";
+		}
+
+		public void ExposeData()
+		{
+			Scribe_Values.Look(ref this._label, "ZiT_Unit.Label");
 		}
 	}
 }
