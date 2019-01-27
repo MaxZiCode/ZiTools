@@ -204,6 +204,8 @@ namespace ZiTools
 					unitsDict[defName].Icon = new ThingIconData(thing);
 					unitsDict[defName].Area = thing.def.size.Area;
 				}
+				if (thing.stackCount > 1)
+					unitsDict[defName].StackCount += thing.stackCount;
 				return true;
 			}
 			else

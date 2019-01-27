@@ -15,19 +15,21 @@ namespace ZiTools
 
 		public DBUnit(string label)
 		{
-			this.Label = label;
+			this._label = label;
 			this.CleanData();
 		}
 
 		public DBUnit() : this(string.Empty) { }
 
-		public string Label { get => _label; private set => _label = value; }
+		public string Label { get => _label; }
 
 		public string Parameter { get; set; }
 
 		public IDBIcon Icon { get; set; }
 
 		public float Area { get; set; }
+
+		public int StackCount { get; set; }
 
 		public int CorpseTime { get; private set; }
 
@@ -47,7 +49,9 @@ namespace ZiTools
 				default:
 				{
 					float thingsCount = Locations.Count;
-					if (Area > 1f)
+					if (StackCount > 1)
+						thingsCount = StackCount;
+					else if (Area > 1f)
 						thingsCount /= Area;
 					Parameter = thingsCount.ToString();
 				}
@@ -65,6 +69,7 @@ namespace ZiTools
 			Locations.Clear();
 			CorpseTime = int.MaxValue;
 			Parameter = "0";
+			StackCount = 0;
 		}
 
 		public void ExposeData()
