@@ -205,7 +205,7 @@ namespace ZiTools
 					unitsDict[defName].Area = thing.def.size.Area;
 				}
 				if (thing.stackCount > 1)
-					unitsDict[defName].StackCount += thing.stackCount;
+					unitsDict[defName].StackCount += thing.stackCount - 1;
 				return true;
 			}
 			else

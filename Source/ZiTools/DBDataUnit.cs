@@ -50,7 +50,7 @@ namespace ZiTools
 				{
 					float thingsCount = Locations.Count;
 					if (StackCount > 1)
-						thingsCount = StackCount;
+						thingsCount += StackCount;
 					else if (Area > 1f)
 						thingsCount /= Area;
 					Parameter = thingsCount.ToString();
