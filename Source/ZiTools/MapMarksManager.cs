@@ -18,8 +18,10 @@ namespace ZiTools
 			if (positions != null && positions.Count != 0)
 			{
 				RemoveMarks(DesDef);
-				IntVec3 prevPos = new IntVec3();
+				IntVec3 prevPos = new IntVec3(int.MaxValue, int.MaxValue,int.MaxValue); // because (0,0,0) location exists on a game map
 				Stopwatch sw = Stopwatch.StartNew();
+				float prevlenghtToObject = float.MaxValue;
+				IntVec3 nearestPos = new IntVec3();
 				for (int i = 0; i < positions.Count; i++)
 				{
 					if (sw.Elapsed.Seconds >= 2)
@@ -30,11 +32,21 @@ namespace ZiTools
 					}
 
 					IntVec3 pos = positions[i];
-					if (pos == prevPos)
-						continue;
-					Find.CurrentMap.designationManager.AddDesignation(new Designation(pos, DesDef));
-					prevPos = pos;
+					if (pos != prevPos)
+					{
+						Find.CurrentMap.designationManager.AddDesignation(new Designation(pos, DesDef));
+						float lenghtToObject = (Find.CameraDriver.MapPosition - pos).LengthHorizontal;
+						if (lenghtToObject < prevlenghtToObject)
+						{
+							prevlenghtToObject = lenghtToObject;
+							nearestPos = pos;
+						}
+						prevPos = pos;
+					}
 				}
+				if (sw.IsRunning)
+					sw.Stop();
+				Find.CameraDriver.JumpToCurrentMapLoc(nearestPos);
 			}
 		}
 
