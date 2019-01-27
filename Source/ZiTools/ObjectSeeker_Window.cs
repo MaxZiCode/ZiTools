@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -41,7 +44,7 @@ namespace ZiTools
 			Rect titleRect = new Rect(inRect) { height = Text.LineHeight + 7f };
 			Rect textFieldRect = new Rect(titleRect.x, titleRect.yMax, buttonX - textFieldH - 5f, textFieldH);
 			Rect updateButtonRect = new Rect(textFieldRect.xMax + 2f, textFieldRect.y, textFieldH, textFieldH);
-
+			
 			Widgets.Label(titleRect, "ZiT_ObjectsSeekerLabel".Translate());
 			if (Widgets.ButtonImageWithBG(updateButtonRect, ContentFinder<Texture2D>.Get("UI/Update Button", true)))
 			{
@@ -91,9 +94,8 @@ namespace ZiTools
 					catButtRect.y += catButtRect.height + 1f;
 				}
 			}
-
-			float curY = textFieldRect.yMax;
-			Rect mainRect = new Rect(inRect) { yMin = curY, xMax = catButtRect.x };
+			
+			Rect mainRect = new Rect(inRect) { yMin = textFieldRect.yMax, xMax = catButtRect.x };
 			if (!ODB.IsSelectedCategoryHaveObjects())
 			{
 				Widgets.Label(mainRect, "ZiT_NotFoundString".Translate(ODB.SelectedCategoryName));
@@ -102,7 +104,6 @@ namespace ZiTools
 
 			List<DBUnit> units = ODB.GetUnitsByWord(_text);
 			Rect rect1 = new Rect(0.0f, 0.0f, mainRect.width - 16f, (units.Count + 1) * lineHeight);
-			curY = rect1.y;
 			Widgets.BeginScrollView(mainRect, ref _scrollPosition, rect1, true);
 			GUI.BeginGroup(rect1);
 
@@ -111,13 +112,20 @@ namespace ZiTools
 			{
 				Parameter = ODB.SelectedCategory == CategoryOfObjects.Corpses ? "ZiT_TimeUntilRotted".Translate() : "ZiT_CellsCountLabel".Translate()
 			};
-			Rect position = new Rect(rect1.x, curY, rect1.width, lineHeight);
+			Rect position = new Rect(rect1.x, rect1.y, rect1.width, lineHeight);
 
 			this.DrawObjectsList(position, cusomUnit, ref favChange, true);
 			position.y += lineHeight;
 			foreach (var unit in units)
 			{
-				this.DrawObjectsList(position, unit, ref favChange);
+				try
+				{
+					this.DrawObjectsList(position, unit, ref favChange);
+				}
+				catch (Exception ex)
+				{
+					Log.ErrorOnce($"Objects seeker: {unit.Label} object throws the error. " + ex, unit.Label.GetHashCode());
+				}
 				position.y += lineHeight;
 			}
 			List<DBUnit> favList = ODB.UnitsInFavourites;
