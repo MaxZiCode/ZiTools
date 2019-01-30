@@ -134,6 +134,8 @@ namespace ZiTools
 				this.FillNewDataTerrain(location.GetTerrain(_mapInProcess), location);
 				foreach (Thing currentThing in _mapInProcess.thingGrid.ThingsAt(location))
 				{
+					if (currentThing is Mote)
+						continue;
 					Thing thingToLoad;
 					bool isMinified;
 					if (currentThing is MinifiedThing)
