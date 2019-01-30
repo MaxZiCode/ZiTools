@@ -126,36 +126,44 @@ namespace ZiTools
 				{ CategoryOfObjects.Corpses, new List<DBUnit>() },
 				{ CategoryOfObjects.Others, new List<DBUnit>() }
 			};
+
 			foreach (IntVec3 location in _mapInProcess.AllCells)
 			{
 				if (_mapInProcess.fogGrid.IsFogged(location))
 					continue;
-				TerrainDef ter = location.GetTerrain(_mapInProcess);
-				FillNewDataTerrain(ter, location);
-				List<Thing> allThingsOnLocation = location.GetThingList(_mapInProcess);
-				foreach (Thing currentThing in allThingsOnLocation)
+				this.FillNewDataTerrain(location.GetTerrain(_mapInProcess), location);
+				foreach (Thing currentThing in _mapInProcess.thingGrid.ThingsAt(location))
 				{
-					string defName = currentThing.def.defName;
-					string label = currentThing.def.label;
-
-					if (FillNewData<Building>(currentThing, CategoryOfObjects.Buildings, location))
-						continue;
-
-					if (FillNewData<Plant>(currentThing, CategoryOfObjects.Plants, location))
-						continue;
-
-					if (FillNewData<Pawn>(currentThing, CategoryOfObjects.Pawns, location))
-						continue;
-
-					if (FillNewData<Corpse>(currentThing, CategoryOfObjects.Corpses, location))
+					Thing thingToLoad;
+					bool isMinified;
+					if (currentThing is MinifiedThing)
 					{
-						CompRottable comp = ((Corpse)currentThing).GetComp<CompRottable>();
+						thingToLoad = ((MinifiedThing)currentThing).InnerThing;
+						isMinified = true;
+					}
+					else
+					{
+						thingToLoad = currentThing;
+						isMinified = false;
+					}
+					if (FillNewData<Building>(thingToLoad, CategoryOfObjects.Buildings, location, isMinified))
+						continue;
+
+					if (FillNewData<Plant>(thingToLoad, CategoryOfObjects.Plants, location, isMinified))
+						continue;
+
+					if (FillNewData<Pawn>(thingToLoad, CategoryOfObjects.Pawns, location, isMinified))
+						continue;
+
+					if (FillNewData<Corpse>(thingToLoad, CategoryOfObjects.Corpses, location, isMinified))
+					{
+						CompRottable comp = ((Corpse)thingToLoad).GetComp<CompRottable>();
 						int currentTicksRemain = comp == null ? 0 : Mathf.RoundToInt(comp.PropsRot.TicksToRotStart - comp.RotProgress);
-						unitsDict[defName].CheskAndSetCorpseTime(currentTicksRemain);
+						this.unitsDict[thingToLoad.def.defName].CheskAndSetCorpseTime(currentTicksRemain);
 						continue;
 					}
 
-					FillNewData<Thing>(currentThing, CategoryOfObjects.Others, location); 
+					FillNewData<Thing>(thingToLoad, CategoryOfObjects.Others, location, isMinified);
 				}
 			}
 
@@ -188,7 +196,7 @@ namespace ZiTools
 #endif
 		}
 
-		bool FillNewData<T>(Thing thing, CategoryOfObjects category, IntVec3 location)
+		bool FillNewData<T>(Thing thing, CategoryOfObjects category, IntVec3 location, bool isMinified)
 		{
 			if (thing is T)
 			{
@@ -199,11 +207,14 @@ namespace ZiTools
 					defName += $" ({thing.Stuff.defName})";
 					label += $" ({thing.Stuff.LabelAsStuff})";
 				}
-				if (AddUnit(defName, label, category, location))
+				bool isNewUnit = AddUnit(defName, label, category, location);
+				if (isNewUnit)
 				{
 					unitsDict[defName].Icon = new ThingIconData(thing);
 					unitsDict[defName].Area = thing.def.size.Area;
 				}
+				if (isMinified)
+					unitsDict[defName].IncreaceCountOfMinified();
 				if (thing.stackCount > 1)
 					unitsDict[defName].StackCount += thing.stackCount - 1;
 				return true;

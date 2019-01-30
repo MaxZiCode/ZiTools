@@ -11,6 +11,9 @@ namespace ZiTools
 	public class DBUnit : IExposable
 	{
 		private string _label;
+
+		private int _countOfMinified;
+
 		public readonly List<IntVec3> Locations = new List<IntVec3>();
 
 		public DBUnit(string label)
@@ -48,21 +51,25 @@ namespace ZiTools
 				break;
 				default:
 				{
-					float thingsCount = Locations.Count;
+					float thingsCount = Locations.Count - _countOfMinified;
 					if (StackCount > 1)
 						thingsCount += StackCount;
 					else if (Area > 1f)
 						thingsCount /= Area;
+					thingsCount += _countOfMinified;
 					Parameter = thingsCount.ToString();
 				}
 				break;
 			}
 		}
+
 		public void CheskAndSetCorpseTime(int ticks)
 		{
 			if (ticks > 0 && ticks < CorpseTime)
 				CorpseTime = ticks;
 		}
+
+		public void IncreaceCountOfMinified() => _countOfMinified++;
 
 		public void CleanData()
 		{
@@ -70,6 +77,7 @@ namespace ZiTools
 			CorpseTime = int.MaxValue;
 			Parameter = "0";
 			StackCount = 0;
+			_countOfMinified = 0;
 		}
 
 		public void ExposeData()
