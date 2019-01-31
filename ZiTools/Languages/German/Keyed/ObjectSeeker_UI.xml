@@ -5,7 +5,7 @@
 	<ZiT_ObjectsSeekerLabel>Suchmaschine</ZiT_ObjectsSeekerLabel>
 	<ZiT_UpdateButtonLabel>Erneuern</ZiT_UpdateButtonLabel>
 	<ZiT_NameLabel>Name</ZiT_NameLabel>
-	<ZiT_CellsCountLabel>Anzahl der Zellen</ZiT_CellsCountLabel>
+	<ZiT_CellsCountLabel>Anzahl</ZiT_CellsCountLabel>
 	<ZiT_CategoryLabel>Kategorie</ZiT_CategoryLabel>
 	<ZiT_NotFoundString>{0} Nicht gefunden</ZiT_NotFoundString>
 	<ZiT_TimeUntilRotted>Zeit bis zur Zersetzung</ZiT_TimeUntilRotted>
