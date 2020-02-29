@@ -39,17 +39,12 @@ namespace ZiTools
 
 		public override void DoWindowContents(Rect inRect)
 		{
-			Text.Font = GameFont.Small;
-			string longestName = ODB.NamesOfCategoriesDict.Values.OrderByDescending(s => s.Length).First();
-			Vector2 longestNameSize = Text.CalcSize(longestName);
-			float buttonWidth = longestNameSize.x + longestNameSize.y + 10; // text + image + gap
-			float textFieldH = 35f, buttonX = inRect.xMax - buttonWidth;
-			
+			float textFieldH = 35f, buttonWidth = 50f, buttonHeigth = 50f, buttonX = inRect.xMax - 2f * (buttonWidth + 1f);
 			Text.Font = GameFont.Medium;
 			Rect titleRect = new Rect(inRect) { height = Text.LineHeight + 7f };
 			Rect textFieldRect = new Rect(titleRect.x, titleRect.yMax, buttonX - textFieldH - 5f, textFieldH);
 			Rect updateButtonRect = new Rect(textFieldRect.xMax + 2f, textFieldRect.y, textFieldH, textFieldH);
-
+			
 			Widgets.Label(titleRect, "ZiT_ObjectsSeekerLabel".Translate());
 			if (Widgets.ButtonImageWithBG(updateButtonRect, ContentFinder<Texture2D>.Get("UI/Update Button", true)))
 			{
@@ -59,16 +54,48 @@ namespace ZiTools
 			TooltipHandler.TipRegion(updateButtonRect, "ZiT_UpdateButtonLabel".Translate());
 			MouseoverSounds.DoRegion(updateButtonRect, SoundDefOf.Mouseover_Category);
 			_text = Widgets.TextField(textFieldRect, _text); //it's here for bigger font
-
 			Text.Font = GameFont.Small;
-			float buttonHeigth = Text.LineHeight + 2;
+
 			float lineHeight = Text.LineHeight;
+			Rect catButtRect = new Rect(buttonX, inRect.yMax - (buttonHeigth + 1f) * 4f, buttonWidth, buttonHeigth);
+			Vector2 categorySize = Text.CalcSize(ODB.SelectedCategoryName);
+			Widgets.Label(new Rect(catButtRect.x + (inRect.xMax - catButtRect.x - categorySize.x) / 2f, (catButtRect.y - categorySize.y) / 2f, categorySize.x, categorySize.y), ODB.SelectedCategoryName);
 
-			Rect catButtRect = new Rect(buttonX, inRect.y, buttonWidth, buttonHeigth);
+			for (int i = 0; i < 8; i++) //categories tab
+			{
+				CategoryOfObjects currentCategory = ODB.GetCategoryViaInt(i);
+				if (ODB.SelectedCategory == currentCategory)
+				{
+					GUI.color = Widgets.WindowBGFillColor;
+					GUI.DrawTexture(catButtRect, BaseContent.BlackTex);
+					GUI.color = new Color(1f, 0.9f, 0f);
+					Widgets.DrawBox(catButtRect, 3);
+					GUI.color = Color.white;
+				}
+				else
+				{
+					GUI.color = Widgets.WindowBGFillColor;
+					GUI.DrawTexture(catButtRect, BaseContent.WhiteTex);
+					GUI.color = Color.white;
+					Widgets.DrawBox(catButtRect, 2);
+				}
 
-			DrawCatedoryMenu(buttonX, catButtRect);
-
-			Rect mainRect = new Rect(inRect) { yMin = textFieldRect.yMax, xMax = buttonX };
+				if (Widgets.ButtonImage(catButtRect.ScaledBy(0.85f), ODB.GetCategoryTexture(currentCategory)))
+				{
+					ODB.SelectedCategory = currentCategory;
+					SoundDefOf.Click.PlayOneShotOnCamera();
+				}
+				TooltipHandler.TipRegion(catButtRect, ODB.NamesOfCategoriesDict[currentCategory]);
+				MouseoverSounds.DoRegion(catButtRect, SoundDefOf.Mouseover_Category);
+				catButtRect.x = catButtRect.xMax + 1f;
+				if (i % 2 == 1)
+				{
+					catButtRect.x = buttonX;
+					catButtRect.y += catButtRect.height + 1f;
+				}
+			}
+			
+			Rect mainRect = new Rect(inRect) { yMin = textFieldRect.yMax, xMax = catButtRect.x };
 			if (!ODB.IsSelectedCategoryHaveObjects())
 			{
 				Widgets.Label(mainRect, "ZiT_NotFoundString".Translate(ODB.SelectedCategoryName));
@@ -111,52 +138,6 @@ namespace ZiTools
 			}
 			GUI.EndGroup();
 			Widgets.EndScrollView();
-		}
-
-		private void DrawCatedoryMenu(float buttonX, Rect catButtRect)
-		{
-			GUI.color = Color.white;
-			Widgets.DrawLineHorizontal(catButtRect.xMin, catButtRect.yMin, catButtRect.width);
-			catButtRect.y++;
-
-			for (int i = 0; i < 8; i++) //categories tab
-			{
-				CategoryOfObjects currentCategory = ODB.GetCategoryViaInt(i);
-				Widgets.DrawLineHorizontal(catButtRect.xMin, catButtRect.yMax, catButtRect.width);
-				GUI.color = Color.gray;
-				if (Mouse.IsOver(catButtRect))
-				{
-					GUI.color = GenUI.MouseoverColor;
-				}
-				else if (ODB.SelectedCategory == currentCategory)
-				{
-					GUI.color = Widgets.SeparatorLabelColor;
-				}
-				GUI.DrawTexture(catButtRect, BaseContent.GreyTex);
-
-				GUI.color = Color.white;
-				if (Mouse.IsOver(catButtRect))
-				{
-					GUI.color = GenUI.MouseoverColor;
-				}
-
-				Rect rectImage = new Rect(catButtRect.x, catButtRect.y, catButtRect.height, catButtRect.height);
-				Rect rectLabel = new Rect(rectImage.xMax, rectImage.yMin, catButtRect.width - rectImage.width, catButtRect.height);
-
-				GUI.DrawTexture(rectImage, ODB.GetCategoryTexture(currentCategory));
-
-				if (Widgets.ButtonInvisible(catButtRect, false))
-				{
-					ODB.SelectedCategory = currentCategory;
-					SoundDefOf.Click.PlayOneShotOnCamera();
-				}
-
-				Widgets.Label(rectLabel, ODB.NamesOfCategoriesDict[currentCategory]);
-				MouseoverSounds.DoRegion(catButtRect, SoundDefOf.Mouseover_Category);
-				catButtRect.y += catButtRect.height + 1;
-
-				GUI.color = Color.white;
-			}
 		}
 
 		public override void PreClose()
