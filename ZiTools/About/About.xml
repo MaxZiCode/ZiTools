@@ -4,5 +4,9 @@
   <author>MaxZiCode</author>
   <url>https://ludeon.com/forums/index.php?topic=45972.0</url>
   <description>Contains various tools for better gameplay experience. (Object seeker)</description>
-  <supportedVersions><li>1.0</li></supportedVersions>
+  <packageId>maxzicode.zitools</packageId>
+  <supportedVersions>
+	<li>1.0</li>
+	<li>1.1</li>
+  </supportedVersions>
 </ModMetaData>

@@ -7,7 +7,7 @@ using System.Text;
 using Verse;
 using Verse.Profile;
 using RimWorld;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace ZiTools
@@ -17,7 +17,7 @@ namespace ZiTools
 	{
 		static StaticConstructor()
 		{
-			var harmony = HarmonyInstance.Create("rimworld.maxzicode.zitools.mainconstructor");
+			Harmony harmony = new Harmony("rimworld.maxzicode.zitools.mainconstructor");
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
