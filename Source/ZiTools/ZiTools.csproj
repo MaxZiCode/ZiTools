@@ -9,43 +9,60 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ZiTools</RootNamespace>
     <AssemblyName>ZiTools</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\ZiTools\Assemblies\</OutputPath>
+    <OutputPath>..\..\ZiTools\v1.1\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
+    <ErrorReport>none</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\ZiTools\Assemblies\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\ZiTools\v1.1\Assemblies\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\0Harmony.dll</HintPath>
+    <Reference Include="0Harmony, Version=2.0.0.7, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.0.0.7\lib\net472\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.0\UnityEngine.dll</HintPath>
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -61,6 +78,9 @@
     <Compile Include="TerrainIconData.cs" />
     <Compile Include="ThingIconData.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>@echo off
@@ -68,10 +88,10 @@ SET "ProjectName=ZiTools"
 SET "SolutionDir=F:\GitHub Repos\Rimworld\ZiTools\Source"
 @echo on
 
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Assemblies\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Assemblies\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Defs\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Defs\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Textures\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Textures\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Languages\*" "F:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Languages\"</PostBuildEvent>
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\v1.1\Assemblies\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\v1.1\Assemblies\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Defs\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Defs\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Textures\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Textures\"
+xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Languages\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Languages\"</PostBuildEvent>
   </PropertyGroup>
 </Project>
