@@ -18,6 +18,7 @@ More info by links below:
 - English
 - Russian
 - German (by Prokho)
+- Simplified Chinese (by HawnHan)
 
 ## Credits
 - Why_is_that for the excellent BetterMiniMap mod.
