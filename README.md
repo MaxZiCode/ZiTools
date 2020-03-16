@@ -22,7 +22,7 @@ More info by links below:
 
 ## Credits
 - Why_is_that for the excellent BetterMiniMap mod.
-- Prokho for the translation.
+- Prokho and HawnHan for the translations.
 
 <p align="center">
   <a href="https://github.com/pardeike/Harmony">
