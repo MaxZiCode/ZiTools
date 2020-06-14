@@ -2,5 +2,6 @@
 {
 	public interface ITextObserver
 	{
+		void AfterUpdateText();
 	}
 }

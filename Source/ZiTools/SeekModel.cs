@@ -11,16 +11,50 @@ namespace ZiTools
 {
 	public class SeekModel : ISeekModel
 	{
-		private List<ISearchItem> _searchItems = new List<ISearchItem>();
-		private List<ITextObserver> _textObservers = new List<ITextObserver>();
-		private List<ICategoryObserver> _categoryObservers = new List<ICategoryObserver>();
-		private List<ISearchItemObserver> _searchItemObservers = new List<ISearchItemObserver>();
+		private readonly List<ISearchItem> _searchItems = new List<ISearchItem>();
+		private readonly List<ITextObserver> _textObservers = new List<ITextObserver>();
+		private readonly List<ICategoryObserver> _categoryObservers = new List<ICategoryObserver>();
+		private readonly List<ISearchItemObserver> _searchItemObservers = new List<ISearchItemObserver>();
 
-		public IList<ICategory> Categories { get; } = new List<ICategory>();
-		public ICategory ActiveCategory { get; set; }
+		private string _text;
+		private ICategory _activeCategory;
+		private ISearchItem _activeSearchItem;
+
+		public List<ICategory> Categories { get; } = new List<ICategory>();
+		public ICategory ActiveCategory 
+		{ 
+			get => _activeCategory; 
+			set
+			{
+				_activeCategory = value;
+				NotifyCategoryObservers();
+			}
+		}
 		public IEnumerable<ISearchItem> SearchItems { get => _searchItems; }
-		public ISearchItem ActiveSearchItem { get; set; }
-		public string SearchText { get; set; }
+		public ISearchItem ActiveSearchItem 
+		{ 
+			get => _activeSearchItem;
+			set
+			{
+				_activeSearchItem = value;
+				NotifySearchItemObservers();
+			} 
+		}
+		public string SearchText 
+		{ 
+			get => _text; 
+			set
+			{
+				_text = value;
+				NotifyTextObservers();
+			}
+		}
+
+		private void NotifyTextObservers() => _textObservers.ForEach(to => to.AfterUpdateText());
+
+		private void NotifyCategoryObservers() => _categoryObservers.ForEach(co => co.AfterUpdateCategory());
+
+		private void NotifySearchItemObservers() => _searchItemObservers.ForEach(so => so.AfterUpdateSearchItem());
 
 		public void AddFavourite(ISearchItem item)
 		{
@@ -34,7 +68,8 @@ namespace ZiTools
 
 		public void Initialize()
 		{
-			
+			Categories.AddRange(CategoryFactory.GetCategories());
+			UpdateItems();
 		}
 
 		public void RegisterObserver(ITextObserver textObserver)
@@ -67,9 +102,12 @@ namespace ZiTools
 			_searchItemObservers.Remove(searchItemObserver);
 		}
 
+
 		public void UpdateItems()
 		{
-			throw new NotImplementedException();
+			_searchItems.Clear();
+			var newItems = SearchItemFactory.GetSearchItems(Current.Game.CurrentMap);
+			_searchItems.AddRange(newItems);
 		}
 	}
 }

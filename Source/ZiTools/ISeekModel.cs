@@ -9,7 +9,7 @@ namespace ZiTools
 {
 	public interface ISeekModel
 	{
-		IList<ICategory> Categories { get; }
+		List<ICategory> Categories { get; }
 
 		ICategory ActiveCategory { get; set; }
 

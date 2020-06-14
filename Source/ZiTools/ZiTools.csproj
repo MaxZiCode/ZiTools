@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Category.cs" />
+    <Compile Include="CategoryFactory.cs" />
     <Compile Include="DBDataUnit.cs" />
     <Compile Include="GameComponent.cs" />
     <Compile Include="ICategory.cs" />
@@ -83,7 +84,10 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="MapMarksManager.cs" />
     <Compile Include="ObjectSeeker_Window.cs" />
+    <Compile Include="RequestGroupCategory.cs" />
     <Compile Include="SearchItem.cs" />
+    <Compile Include="SearchItemFactory.cs" />
+    <Compile Include="SearchThingDef.cs" />
     <Compile Include="SeekModel.cs" />
     <Compile Include="StaticConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

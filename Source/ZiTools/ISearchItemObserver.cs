@@ -2,5 +2,6 @@
 {
 	public interface ISearchItemObserver
 	{
+		void AfterUpdateSearchItem();
 	}
 }

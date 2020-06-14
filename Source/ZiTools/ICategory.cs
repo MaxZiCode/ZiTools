@@ -9,6 +9,6 @@ namespace ZiTools
 
 		Texture2D Texture { get; }
 
-		IEnumerable<ISearchItem> GetSearchItems();
+		IEnumerable<ISearchItem> GetSearchItems(IEnumerable<ISearchItem> searchItems);
 	}
 }
