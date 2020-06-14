@@ -70,12 +70,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Category.cs" />
     <Compile Include="DBDataUnit.cs" />
     <Compile Include="GameComponent.cs" />
+    <Compile Include="ICategory.cs" />
+    <Compile Include="ICategoryObserver.cs" />
     <Compile Include="IDBIcon.cs" />
+    <Compile Include="ISearchItem.cs" />
+    <Compile Include="ISearchItemObserver.cs" />
+    <Compile Include="ISeekModel.cs" />
+    <Compile Include="ITextObserver.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MapMarksManager.cs" />
     <Compile Include="ObjectSeeker_Window.cs" />
+    <Compile Include="SearchItem.cs" />
+    <Compile Include="SeekModel.cs" />
     <Compile Include="StaticConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectSeeker_Data.cs" />
