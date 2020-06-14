@@ -19,7 +19,7 @@
     <Optimize>false</Optimize>
     <OutputPath>..\..\ZiTools\v1.1\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>none</ErrorReport>
+    <ErrorReport>send</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -73,6 +73,7 @@
     <Compile Include="DBDataUnit.cs" />
     <Compile Include="GameComponent.cs" />
     <Compile Include="IDBIcon.cs" />
+    <Compile Include="MainWindow.cs" />
     <Compile Include="MapMarksManager.cs" />
     <Compile Include="ObjectSeeker_Window.cs" />
     <Compile Include="StaticConstructor.cs" />

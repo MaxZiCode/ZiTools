@@ -42,18 +42,23 @@ namespace ZiTools
 		[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls", MethodType.Normal)]
 		class Patch_DoPlaySettingsGlobalControls
 		{
+			static readonly Type s_windowType = typeof(MainWindow);
+
 			static void Postfix(WidgetRow row, bool worldView)
 			{
 				if (!worldView)
 				{
-					bool isSelected = Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window));
+					bool isSelected = Find.WindowStack.IsOpen(s_windowType);
 					row.ToggleableIcon(ref isSelected, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerLabel".Translate(), SoundDefOf.Mouseover_ButtonToggle);
-					if (isSelected != Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)))
+					if (isSelected != Find.WindowStack.IsOpen(s_windowType))
 					{
-						if (!Find.WindowStack.IsOpen(typeof(ObjectSeeker_Window)))
-							ObjectSeeker_Window.DrawWindow();
+						if (!Find.WindowStack.IsOpen(s_windowType))
+						{
+							MainWindow window = new MainWindow();
+							Find.WindowStack.Add(window);
+						}
 						else
-							Find.WindowStack.TryRemove(typeof(ObjectSeeker_Window), false);
+							Find.WindowStack.TryRemove(s_windowType, false);
 					}
 				}
 			}
