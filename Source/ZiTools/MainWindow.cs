@@ -10,16 +10,21 @@ using RimWorld;
 
 namespace ZiTools
 {
-	public sealed class MainWindow : Window
+	public sealed class MainWindow : Window, ITextObserver, ICategoryObserver, ISearchItemObserver
 	{
 		private Rect _positionRect;
 		private Vector2 _initialSize = new Vector2(200f, 280f);
 		private Vector2 _categoryScrollPosition = new Vector2();
 		private string _text;
+		private ICategory _activeCategory;
+		private ISearchItem _activeSearchItem;
+
+		private ISeekModel _model;
+		private ISeekController _controller;
 
 		public override Vector2 InitialSize => _initialSize;
 
-		public MainWindow() : base()
+		public MainWindow(ISeekController controller, ISeekModel model) : base()
 		{
 			this.doCloseX = false;
 			this.preventDrawTutor = true;
@@ -35,14 +40,18 @@ namespace ZiTools
 				width = InitialSize.x,
 				height = InitialSize.y
 			};
+
+			_controller = controller;
+			_model = model;
+
+			_model.RegisterObserver((ITextObserver)this);
+			_model.RegisterObserver((ICategoryObserver)this);
+			_model.RegisterObserver((ISearchItemObserver)this);
+
+
 		}
 
 		protected override void SetInitialSizeAndPosition() => windowRect = _positionRect;
-
-		public override void PreOpen()
-		{
-			base.PreOpen();
-		}
 
 		public override void DoWindowContents(Rect inRect)
 		{
@@ -71,14 +80,10 @@ namespace ZiTools
 			DrawSelect(new Rect());
 		}
 
-		public override void PreClose()
-		{
-			base.PreClose();
-		}
-
 		private void DrawSearch(Rect inRect)
 		{
 			_text = Widgets.TextField(inRect, _text);
+			_controller.ChangeText(_text);
 		}
 
 		private void DrawCategories(Rect inRect)
@@ -105,10 +110,16 @@ namespace ZiTools
 			Widgets.BeginScrollView(faceRect, ref _categoryScrollPosition, groupRect);
 			GUI.BeginGroup(groupRect);
 
-			foreach (var cat in categories)
+			for (int i = 0; i < categories.Count; i++)
 			{
-				Rect contrCat = cat.ContractedBy(2f);
-				Widgets.DrawOptionBackground(contrCat, IsSelected(contrCat));
+				Rect contrCtg = categories[i].ContractedBy(2f);
+				ICategory category = _model.Categories[0];
+				bool selected = category == _activeCategory;
+				if (SimpleButton(contrCtg, selected))
+				{
+					ICategory selectedCtg = selected ? null : category;
+					_controller.ChangeActiveCategory(selectedCtg);
+				}
 			}
 
 			GUI.EndGroup();
@@ -125,6 +136,25 @@ namespace ZiTools
 			Widgets.DrawBoxSolid(inRect, Color.grey);
 		}
 
-		private bool IsSelected(Rect rect) => Mouse.IsOver(rect);
+		public void AfterUpdateText()
+		{
+			_text = _model.SearchText;
+		}
+
+		public void AfterUpdateSearchItem()
+		{
+			_activeCategory = _model.ActiveCategory;
+		}
+
+		public void AfterUpdateCategory()
+		{
+			_activeSearchItem = _model.ActiveSearchItem;
+		}
+
+		private bool SimpleButton(Rect rect, bool selected)
+		{
+			Widgets.DrawOptionBackground(rect, selected);
+			return Widgets.ButtonInvisible(rect);
+		}
 	}
 }

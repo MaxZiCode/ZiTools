@@ -79,6 +79,7 @@
     <Compile Include="IDBIcon.cs" />
     <Compile Include="ISearchItem.cs" />
     <Compile Include="ISearchItemObserver.cs" />
+    <Compile Include="ISeekController.cs" />
     <Compile Include="ISeekModel.cs" />
     <Compile Include="ITextObserver.cs" />
     <Compile Include="MainWindow.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="SearchItem.cs" />
     <Compile Include="SearchItemFactory.cs" />
     <Compile Include="SearchThingDef.cs" />
+    <Compile Include="WindowController.cs" />
     <Compile Include="SeekModel.cs" />
     <Compile Include="StaticConstructor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

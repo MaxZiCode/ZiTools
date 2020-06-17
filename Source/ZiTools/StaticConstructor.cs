@@ -15,6 +15,12 @@ namespace ZiTools
 	[StaticConstructorOnStartup]
 	public static class StaticConstructor
 	{
+		private static bool s_hasModelInitialized;
+
+		public static SeekModel SeekModel = new SeekModel();
+
+		public static WindowController WindowController = new WindowController(SeekModel);
+
 		static StaticConstructor()
 		{
 			Harmony harmony = new Harmony("rimworld.maxzicode.zitools.mainconstructor");
@@ -42,23 +48,20 @@ namespace ZiTools
 		[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls", MethodType.Normal)]
 		class Patch_DoPlaySettingsGlobalControls
 		{
-			static readonly Type s_windowType = typeof(MainWindow);
-
 			static void Postfix(WidgetRow row, bool worldView)
 			{
 				if (!worldView)
 				{
-					bool isSelected = Find.WindowStack.IsOpen(s_windowType);
+					bool isSelected = WindowController.IsWindowOpened;
 					row.ToggleableIcon(ref isSelected, ContentFinder<Texture2D>.Get("UI/Lupa(not Pupa)", true), "ZiT_ObjectsSeekerLabel".Translate(), SoundDefOf.Mouseover_ButtonToggle);
-					if (isSelected != Find.WindowStack.IsOpen(s_windowType))
+					if (isSelected != WindowController.IsWindowOpened)
 					{
-						if (!Find.WindowStack.IsOpen(s_windowType))
+						if (!s_hasModelInitialized)
 						{
-							MainWindow window = new MainWindow();
-							Find.WindowStack.Add(window);
+							SeekModel.Initialize();
+							s_hasModelInitialized = true;
 						}
-						else
-							Find.WindowStack.TryRemove(s_windowType, false);
+						WindowController.ToggleWindow();
 					}
 				}
 			}
