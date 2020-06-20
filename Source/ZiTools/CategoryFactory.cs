@@ -14,7 +14,16 @@ namespace ZiTools
 			ICategory category;
 
 			category = new RequestGroupCategory("Everything", BaseContent.WhiteTex);
-			yield return category;
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
+			yield return new RequestGroupCategory("Everything", BaseContent.WhiteTex);
 		}
 	}
 }

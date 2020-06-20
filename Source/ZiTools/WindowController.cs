@@ -40,7 +40,17 @@ namespace ZiTools
 
 		public void ChangeActiveCategory(ICategory category)
 		{
-			_model.ActiveCategory = category;
+			if (category == null)
+				return;
+
+			if (_model.ActiveCategory == category)
+			{
+				_model.ActiveCategory = null;
+			}
+			else
+			{
+				_model.ActiveCategory = category;
+			}
 		}
 
 		public void ChangeActiveSearchItem(ISearchItem item)

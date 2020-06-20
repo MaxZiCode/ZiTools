@@ -19,8 +19,8 @@ namespace ZiTools
 		private ICategory _activeCategory;
 		private ISearchItem _activeSearchItem;
 
-		private ISeekModel _model;
-		private ISeekController _controller;
+		private readonly ISeekModel _model;
+		private readonly ISeekController _controller;
 
 		public override Vector2 InitialSize => _initialSize;
 
@@ -36,7 +36,7 @@ namespace ZiTools
 			_positionRect = new Rect()
 			{
 				x = UI.screenWidth - InitialSize.x,
-				y = UI.screenHeight - InitialSize.y - 148f,
+				y = UI.screenHeight - InitialSize.y - 150f,
 				width = InitialSize.x,
 				height = InitialSize.y
 			};
@@ -77,7 +77,6 @@ namespace ZiTools
 
 			_positionRect.height = resultsRect.yMax;
 			SetInitialSizeAndPosition();
-			DrawSelect(new Rect());
 		}
 
 		private void DrawSearch(Rect inRect)
@@ -93,47 +92,40 @@ namespace ZiTools
 			Rect faceRect = new Rect(inRect);
 
 			float catRectSide = faceRect.height - 16f;
-			Rect catRect = new Rect()
-			{
-				width = catRectSide,
-				height = catRectSide
-			};
-
-			List<Rect> categories = Enumerable.Range(0, 5).Select(i => new Rect(catRect) { x = (catRect.width + gap) * i }).ToList();
+			var catRects = Enumerable.Range(0, _model.Categories.Count).Select(i => new Rect() { width = catRectSide, height = catRectSide, x = (catRectSide + gap) * i });
 
 			Rect groupRect = new Rect()
 			{
-				width = categories.Last().xMax,
-				height = catRect.height
+				width = catRects.LastOrDefault().xMax,
+				height = catRectSide
 			};
+
+			ICategory selectedCategory = null;
+			var enumerator = catRects.GetEnumerator();
 
 			Widgets.BeginScrollView(faceRect, ref _categoryScrollPosition, groupRect);
 			GUI.BeginGroup(groupRect);
 
-			for (int i = 0; i < categories.Count; i++)
+			for (int i = 0; enumerator.MoveNext(); i++)
 			{
-				Rect contrCtg = categories[i].ContractedBy(2f);
-				ICategory category = _model.Categories[0];
+				Rect curRect = enumerator.Current.ContractedBy(2f);
+				ICategory category = _model.Categories[i];
 				bool selected = category == _activeCategory;
-				if (SimpleButton(contrCtg, selected))
+				if (SimpleButton(curRect, selected))
 				{
-					ICategory selectedCtg = selected ? null : category;
-					_controller.ChangeActiveCategory(selectedCtg);
+					selectedCategory = category;
 				}
 			}
 
 			GUI.EndGroup();
 			Widgets.EndScrollView();
+
+			_controller.ChangeActiveCategory(selectedCategory);
 		}
 
 		private void DrawResults(Rect inRect)
 		{
 			Widgets.DrawBoxSolid(inRect, Color.green);
-		}
-
-		private void DrawSelect(Rect inRect)
-		{
-			Widgets.DrawBoxSolid(inRect, Color.grey);
 		}
 
 		public void AfterUpdateText()
@@ -143,12 +135,12 @@ namespace ZiTools
 
 		public void AfterUpdateSearchItem()
 		{
-			_activeCategory = _model.ActiveCategory;
+			_activeSearchItem = _model.ActiveSearchItem;
 		}
 
 		public void AfterUpdateCategory()
 		{
-			_activeSearchItem = _model.ActiveSearchItem;
+			_activeCategory = _model.ActiveCategory;
 		}
 
 		private bool SimpleButton(Rect rect, bool selected)
