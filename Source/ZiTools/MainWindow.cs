@@ -15,6 +15,7 @@ namespace ZiTools
 		private Rect _positionRect;
 		private Vector2 _initialSize = new Vector2(200f, 280f);
 		private Vector2 _categoryScrollPosition = new Vector2();
+		private Vector2 _itemsScrollPosition = new Vector2();
 		private string _text;
 		private ICategory _activeCategory;
 		private ISearchItem _activeSearchItem;

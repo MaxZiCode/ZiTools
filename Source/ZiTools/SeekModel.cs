@@ -27,6 +27,7 @@ namespace ZiTools
 			set
 			{
 				_activeCategory = value;
+				UpdateItems();
 				NotifyCategoryObservers();
 			}
 		}
@@ -46,6 +47,7 @@ namespace ZiTools
 			set
 			{
 				_text = value;
+				UpdateItems();
 				NotifyTextObservers();
 			}
 		}
@@ -69,7 +71,6 @@ namespace ZiTools
 		public void Initialize()
 		{
 			Categories.AddRange(CategoryFactory.GetCategories());
-			UpdateItems();
 		}
 
 		public void RegisterObserver(ITextObserver textObserver)
@@ -106,8 +107,16 @@ namespace ZiTools
 		public void UpdateItems()
 		{
 			_searchItems.Clear();
-			var newItems = SearchItemFactory.GetSearchItems(Current.Game.CurrentMap);
-			_searchItems.AddRange(newItems);
+			var items = SearchItemFactory.GetSearchItems(Current.Game.CurrentMap);
+			if (_activeCategory != null)
+			{
+				items = _activeCategory.GetSearchItems(items);
+			}
+			if (!string.IsNullOrEmpty(_text))
+			{
+				items = items.Where(i => i.Label.IndexOf(_text, 0, StringComparison.OrdinalIgnoreCase) != -1);
+			}
+			_searchItems.AddRange(items);
 		}
 	}
 }

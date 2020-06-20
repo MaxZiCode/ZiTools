@@ -29,8 +29,15 @@ namespace ZiTools
 
 		public IEnumerable<ISearchItem> GetSearchItems(IEnumerable<ISearchItem> searchItems)
 		{
-			// TODO: Доделать.
-			return searchItems;
+			foreach (var item in searchItems)
+			{
+				if (item.Def is ThingDef tDef && 
+					_groups.All(g => ThingListGroupHelper.Includes(g, tDef)) && 
+					!_ignorGroups.Any(ig => ThingListGroupHelper.Includes(ig, tDef)))
+				{
+					yield return item;
+				}
+			}
 		}
 	}
 }

@@ -13,11 +13,13 @@ namespace ZiTools
 		public string Label { get; }
 		public Texture2D Texture { get; }
 		public int Count { get; }
+		public Def Def { get; }
 
 		public SearchThingDef(ThingDef thingDef, int count)
 		{
 			Label = thingDef.LabelCap;
 			Texture = thingDef.uiIcon;
+			Def = thingDef;
 			this.Count = count;
 		}
 	}

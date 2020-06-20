@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Verse;
 
 namespace ZiTools
 {
@@ -9,5 +10,7 @@ namespace ZiTools
 		Texture2D Texture { get; }
 
 		int Count { get; }
+
+		Def Def { get; }
 	}
 }
