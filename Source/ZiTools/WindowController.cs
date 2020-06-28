@@ -60,7 +60,8 @@ namespace ZiTools
 
 		public void ChangeText(string text)
 		{
-			_model.SearchText = text;
+			if (text != _model.SearchText)
+				_model.SearchText = text;
 		}
 
 		public void RemoveFavourite(ISearchItem item)

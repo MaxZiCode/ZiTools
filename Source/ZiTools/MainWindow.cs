@@ -13,7 +13,7 @@ namespace ZiTools
 	public sealed class MainWindow : Window, ITextObserver, ICategoryObserver, ISearchItemObserver
 	{
 		private Rect _positionRect;
-		private Vector2 _initialSize = new Vector2(200f, 280f);
+		private Vector2 _initialSize = new Vector2(250f, 310f);
 		private Vector2 _categoryScrollPosition = new Vector2();
 		private Vector2 _itemsScrollPosition = new Vector2();
 		private string _text;
@@ -72,12 +72,8 @@ namespace ZiTools
 			Rect resultsRect = new Rect(inRect)
 			{
 				yMin = categoriesRect.yMax,
-				height = 200f
 			};
 			DrawResults(resultsRect);
-
-			_positionRect.height = resultsRect.yMax;
-			SetInitialSizeAndPosition();
 		}
 
 		private void DrawSearch(Rect inRect)
@@ -93,24 +89,23 @@ namespace ZiTools
 			Rect faceRect = new Rect(inRect);
 
 			float catRectSide = faceRect.height - 16f;
-			var catRects = Enumerable.Range(0, _model.Categories.Count).Select(i => new Rect() { width = catRectSide, height = catRectSide, x = (catRectSide + gap) * i });
+			var catRects = _model.Categories.Select((c, i) => (Category: c, Rect: new Rect() { width = catRectSide, height = catRectSide, x = (catRectSide + gap) * i } ));
 
 			Rect groupRect = new Rect()
 			{
-				width = catRects.LastOrDefault().xMax,
+				width = catRects.LastOrDefault().Rect.xMax,
 				height = catRectSide
 			};
 
 			ICategory selectedCategory = null;
-			var enumerator = catRects.GetEnumerator();
 
 			Widgets.BeginScrollView(faceRect, ref _categoryScrollPosition, groupRect);
 			GUI.BeginGroup(groupRect);
 
-			for (int i = 0; enumerator.MoveNext(); i++)
+			foreach (var catRect in catRects)
 			{
-				Rect curRect = enumerator.Current.ContractedBy(2f);
-				ICategory category = _model.Categories[i];
+				Rect curRect = catRect.Rect.ContractedBy(2f);
+				ICategory category = catRect.Category;
 				bool selected = category == _activeCategory;
 				if (SimpleButton(curRect, selected))
 				{
@@ -126,7 +121,28 @@ namespace ZiTools
 
 		private void DrawResults(Rect inRect)
 		{
-			Widgets.DrawBoxSolid(inRect, Color.green);
+			Rect faceRect = inRect;
+
+			var itemRects = _model.SearchItems.Select((si, i) => (Item: si, Rect: new Rect() { width = faceRect.width - 16f, height = Text.LineHeight, y = Text.LineHeight * i }));
+
+			Rect groupRect = new Rect()
+			{
+				width = faceRect.width - 16f,
+				height = itemRects.LastOrDefault().Rect.yMax
+			};
+
+			Widgets.BeginScrollView(faceRect, ref _itemsScrollPosition, groupRect);
+			GUI.BeginGroup(groupRect);
+
+			foreach (var itemRect in itemRects)
+			{
+				Rect curRect = itemRect.Rect;
+				Widgets.Label(curRect, itemRect.Item.Label);
+				Widgets.DrawHighlightIfMouseover(curRect);
+			}
+
+			GUI.EndGroup();
+			Widgets.EndScrollView();
 		}
 
 		public void AfterUpdateText()

@@ -21,7 +21,9 @@ namespace ZiTools
 
 		void Initialize();
 
-		void UpdateItems();
+		void UpdateAllItems();
+
+		void UpdateSearchItems();
 
 		void AddFavourite(ISearchItem item);
 

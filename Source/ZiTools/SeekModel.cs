@@ -11,6 +11,7 @@ namespace ZiTools
 {
 	public class SeekModel : ISeekModel
 	{
+		private readonly List<ISearchItem> _allItems = new List<ISearchItem>();
 		private readonly List<ISearchItem> _searchItems = new List<ISearchItem>();
 		private readonly List<ITextObserver> _textObservers = new List<ITextObserver>();
 		private readonly List<ICategoryObserver> _categoryObservers = new List<ICategoryObserver>();
@@ -27,7 +28,7 @@ namespace ZiTools
 			set
 			{
 				_activeCategory = value;
-				UpdateItems();
+				UpdateSearchItems();
 				NotifyCategoryObservers();
 			}
 		}
@@ -47,7 +48,7 @@ namespace ZiTools
 			set
 			{
 				_text = value;
-				UpdateItems();
+				UpdateSearchItems();
 				NotifyTextObservers();
 			}
 		}
@@ -103,11 +104,20 @@ namespace ZiTools
 			_searchItemObservers.Remove(searchItemObserver);
 		}
 
+		public void UpdateAllItems()
+		{
+			_allItems.Clear();
+			_allItems.AddRange(SearchItemFactory.GetSearchItems(Current.Game.CurrentMap));
+		}
 
-		public void UpdateItems()
+		public void UpdateSearchItems()
 		{
 			_searchItems.Clear();
-			var items = SearchItemFactory.GetSearchItems(Current.Game.CurrentMap);
+
+			// TODO: Added for tests, del later.
+			UpdateAllItems();
+
+			IEnumerable<ISearchItem> items = _allItems;
 			if (_activeCategory != null)
 			{
 				items = _activeCategory.GetSearchItems(items);
