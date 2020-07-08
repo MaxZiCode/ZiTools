@@ -18,11 +18,11 @@ namespace ZiTools
 		private readonly List<ISearchItemObserver> _searchItemObservers = new List<ISearchItemObserver>();
 
 		private string _text;
-		private ICategory _activeCategory;
+		private Category _activeCategory;
 		private ISearchItem _activeSearchItem;
 
-		public List<ICategory> Categories { get; } = new List<ICategory>();
-		public ICategory ActiveCategory 
+		public List<Category> Categories { get; } = new List<Category>();
+		public Category ActiveCategory 
 		{ 
 			get => _activeCategory; 
 			set
@@ -71,7 +71,7 @@ namespace ZiTools
 
 		public void Initialize()
 		{
-			Categories.AddRange(CategoryFactory.GetCategories());
+			Categories.AddRange(ItemFilterFactory.GetFilters());
 		}
 
 		public void RegisterObserver(ITextObserver textObserver)
@@ -120,7 +120,7 @@ namespace ZiTools
 			IEnumerable<ISearchItem> items = _allItems;
 			if (_activeCategory != null)
 			{
-				items = _activeCategory.GetSearchItems(items);
+				items = _activeCategory.GetFilteredItems(items);
 			}
 			if (!string.IsNullOrEmpty(_text))
 			{

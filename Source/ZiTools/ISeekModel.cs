@@ -4,14 +4,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Verse.Noise;
 
 namespace ZiTools
 {
 	public interface ISeekModel
 	{
-		List<ICategory> Categories { get; }
+		List<Category> Categories { get; }
 
-		ICategory ActiveCategory { get; set; }
+		Category ActiveCategory { get; set; }
 
 		IEnumerable<ISearchItem> SearchItems { get; }
 

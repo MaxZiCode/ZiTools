@@ -38,7 +38,7 @@ namespace ZiTools
 			_model.AddFavourite(item);
 		}
 
-		public void ChangeActiveCategory(ICategory category)
+		public void ChangeActiveCategory(Category category)
 		{
 			if (category == null)
 				return;

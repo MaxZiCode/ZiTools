@@ -12,12 +12,15 @@ namespace ZiTools
 {
 	public sealed class MainWindow : Window, ITextObserver, ICategoryObserver, ISearchItemObserver
 	{
+		public static readonly Texture2D CollapseTexture = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Collapse", true);
+		public static readonly Texture2D RevealTexture = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Reveal", true);
+
 		private Rect _positionRect;
-		private Vector2 _initialSize = new Vector2(250f, 310f);
+		private Vector2 _initialSize = new Vector2(300f, 480f);
 		private Vector2 _categoryScrollPosition = new Vector2();
 		private Vector2 _itemsScrollPosition = new Vector2();
 		private string _text;
-		private ICategory _activeCategory;
+		private Category _activeCategory;
 		private ISearchItem _activeSearchItem;
 
 		private readonly ISeekModel _model;
@@ -89,7 +92,7 @@ namespace ZiTools
 			Rect faceRect = new Rect(inRect);
 
 			float catRectSide = faceRect.height - 16f;
-			var catRects = _model.Categories.Select((c, i) => (Category: c, Rect: new Rect() { width = catRectSide, height = catRectSide, x = (catRectSide + gap) * i } ));
+			var catRects = _model.Categories.Select((c, i) => (Filter: c, Rect: new Rect() { width = catRectSide, height = catRectSide, x = (catRectSide + gap) * i } ));
 
 			Rect groupRect = new Rect()
 			{
@@ -97,7 +100,7 @@ namespace ZiTools
 				height = catRectSide
 			};
 
-			ICategory selectedCategory = null;
+			Category selectedCategory = null;
 
 			Widgets.BeginScrollView(faceRect, ref _categoryScrollPosition, groupRect);
 			GUI.BeginGroup(groupRect);
@@ -105,7 +108,8 @@ namespace ZiTools
 			foreach (var catRect in catRects)
 			{
 				Rect curRect = catRect.Rect.ContractedBy(2f);
-				ICategory category = catRect.Category;
+				Category category = catRect.Filter;
+				Widgets.Label(curRect, category.Label.First().ToString());
 				bool selected = category == _activeCategory;
 				if (SimpleButton(curRect, selected))
 				{
@@ -122,6 +126,9 @@ namespace ZiTools
 		private void DrawResults(Rect inRect)
 		{
 			Rect faceRect = inRect;
+			Widgets.DrawMenuSection(faceRect);
+
+			Text.Font = GameFont.Small;
 
 			var itemRects = _model.SearchItems.Select((si, i) => (Item: si, Rect: new Rect() { width = faceRect.width - 16f, height = Text.LineHeight, y = Text.LineHeight * i }));
 
@@ -144,6 +151,32 @@ namespace ZiTools
 			GUI.EndGroup();
 			Widgets.EndScrollView();
 		}
+
+		//public void DoCollapseRevealButton()
+		//{
+		//	// Temporary values
+		//	float x = 0f;
+		//	float y = 0f;
+		//	dynamic node = null;
+		//	bool openMask = false;
+
+		//	Rect butRect = new Rect(x, y, 18f, 18f);
+			
+		//	Texture2D tex = node.IsOpen(openMask) ? CollapseTexture : RevealTexture;
+		//	if (Widgets.ButtonImage(butRect, tex, true))
+		//	{
+		//		bool flag = node.IsOpen(openMask);
+		//		if (flag)
+		//		{
+		//			SoundDefOf.TabClose.PlayOneShotOnCamera(null);
+		//		}
+		//		else
+		//		{
+		//			SoundDefOf.TabOpen.PlayOneShotOnCamera(null);
+		//		}
+		//		node.SetOpen(openMask, !flag);
+		//	}
+		//}
 
 		public void AfterUpdateText()
 		{

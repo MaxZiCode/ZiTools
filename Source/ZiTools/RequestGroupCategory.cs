@@ -6,34 +6,31 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 using Verse;
+using Verse.Noise;
 
 namespace ZiTools
 {
-	public class RequestGroupCategory : ICategory
+	public class RequestGroupCategory : Category
 	{
-		private List<ThingRequestGroup> _groups = new List<ThingRequestGroup>();
-		private List<ThingRequestGroup> _ignorGroups = new List<ThingRequestGroup>();
+		private readonly List<ThingRequestGroup> groups = new List<ThingRequestGroup>();
+		private readonly List<ThingRequestGroup> ignorGroups = new List<ThingRequestGroup>();
 
-		public string Label { get; }
-		public Texture2D Texture { get; }
-
-		public RequestGroupCategory(string label, Texture2D texture)
+		public RequestGroupCategory(string label)
 		{
 			this.Label = label ?? throw new ArgumentNullException(nameof(label));
-			this.Texture = texture ?? throw new ArgumentNullException(nameof(texture));
 		}
 
-		public void AddGroup(ThingRequestGroup group) => _groups.Add(group);
+		public void AddGroup(ThingRequestGroup group) => groups.Add(group);
 
-		public void AddIgnorGroup(ThingRequestGroup group) => _ignorGroups.Add(group);
+		public void AddIgnorGroup(ThingRequestGroup group) => ignorGroups.Add(group);
 
-		public IEnumerable<ISearchItem> GetSearchItems(IEnumerable<ISearchItem> searchItems)
+		public override IEnumerable<ISearchItem> GetFilteredItems(IEnumerable<ISearchItem> searchItems)
 		{
 			foreach (var item in searchItems)
 			{
 				if (item.Def is ThingDef tDef && 
-					_groups.All(g => ThingListGroupHelper.Includes(g, tDef)) && 
-					!_ignorGroups.Any(ig => ThingListGroupHelper.Includes(ig, tDef)))
+					groups.All(g => ThingListGroupHelper.Includes(g, tDef)) && 
+					!ignorGroups.Any(ig => ThingListGroupHelper.Includes(ig, tDef)))
 				{
 					yield return item;
 				}

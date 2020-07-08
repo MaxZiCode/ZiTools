@@ -70,17 +70,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Category.cs" />
-    <Compile Include="CategoryFactory.cs" />
+    <Compile Include="ItemFilterFactory.cs" />
     <Compile Include="DBDataUnit.cs" />
     <Compile Include="GameComponent.cs" />
-    <Compile Include="ICategory.cs" />
     <Compile Include="ICategoryObserver.cs" />
     <Compile Include="IDBIcon.cs" />
     <Compile Include="ISearchItem.cs" />
     <Compile Include="ISearchItemObserver.cs" />
     <Compile Include="ISeekController.cs" />
     <Compile Include="ISeekModel.cs" />
+    <Compile Include="Category.cs" />
     <Compile Include="ITextObserver.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="MapMarksManager.cs" />
