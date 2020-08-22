@@ -17,7 +17,7 @@
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\ZiTools\v1.1\Assemblies\</OutputPath>
+    <OutputPath>..\..\ZiTools\v1.2\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>none</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\ZiTools\v1.1\Assemblies\</OutputPath>
+    <OutputPath>..\..\ZiTools\v1.2\Assemblies\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -43,7 +43,7 @@
       <HintPath>..\packages\Lib.Harmony.2.0.0.7\lib\net472\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\RimWorld Modding\Assemblies\1.2\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -54,15 +54,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\UnityEngine.dll</HintPath>
+      <HintPath>D:\RimWorld Modding\Assemblies\1.2\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>D:\RimWorld Modding\Assemblies\1.2\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>C:\Users\Maxim\Desktop\RimWorld Modding\Assemblies\1.1\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>D:\RimWorld Modding\Assemblies\1.2\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -83,15 +83,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>@echo off
-SET "ProjectName=ZiTools"
-SET "SolutionDir=F:\GitHub Repos\Rimworld\ZiTools\Source"
-@echo on
-
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\v1.1\Assemblies\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\v1.1\Assemblies\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\About\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\About\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Defs\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Defs\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Textures\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Textures\"
-xcopy /S /Y "%25SolutionDir%25\..\%25ProjectName%25\Languages\*" "S:\Steam\SteamApps\common\RimWorld\Mods\%25ProjectName%25\Languages\"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
