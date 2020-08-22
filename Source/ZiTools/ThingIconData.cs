@@ -7,9 +7,9 @@ namespace ZiTools
 	// class for drawing a thing icon
 	public class ThingIconData : IDBIcon
 	{
-		Color drawColor;
-		readonly float resolvedIconAngle;
-		readonly Texture resolvedIcon;
+		private Color drawColor;
+		private readonly float resolvedIconAngle;
+		private readonly Texture resolvedIcon;
 
 		public const float ThingIconSize = 50f;
 
@@ -47,6 +47,7 @@ namespace ZiTools
 			{
 				this.resolvedIcon = thing.Graphic.ExtractInnerGraphicFor(thing).MatAt(thing.def.defaultPlacingRot, null).mainTexture;
 			}
+			resolvedIcon = resolvedIcon ?? BaseContent.WhiteTex;
 		}
 
 		public void DrawIcon(Rect outerRect)

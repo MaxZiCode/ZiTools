@@ -6,15 +6,15 @@ namespace ZiTools
 	// class for drawing a terrain icon
 	public class TerrainIconData : IDBIcon
 	{
-		readonly Texture2D icon;
-		Rect iconTexCoords;
-		readonly float iconAngle;
-		Color iconDrawColor;
+		private readonly Texture2D icon;
+		private Rect iconTexCoords;
+		private readonly float iconAngle;
+		private Color iconDrawColor;
 
 		public TerrainIconData(TerrainDef entDef)
 		{
 			this.iconDrawColor = entDef.uiIconColor;
-			this.icon = entDef.uiIcon;
+			this.icon = entDef.uiIcon ?? BaseContent.WhiteTex;
 			this.iconTexCoords = new Rect(0f, 0f, 64f / (float)this.icon.width, 64f / (float)this.icon.height);
 			this.iconAngle = entDef.uiIconAngle;
 		}
