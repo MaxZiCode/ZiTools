@@ -23,8 +23,8 @@ namespace ZiTools
 			this.ODB = ZiTools_GameComponent.GetObjectsDatabase();
 		}
 
-		Vector2 _scrollPosition = new Vector2();
-		string _text;
+		private Vector2 _scrollPosition = new Vector2();
+		private string _text;
 
 		public ObjectsDatabase ODB { get; private set; }
 
@@ -44,7 +44,7 @@ namespace ZiTools
 			Rect titleRect = new Rect(inRect) { height = Text.LineHeight + 7f };
 			Rect textFieldRect = new Rect(titleRect.x, titleRect.yMax, buttonX - textFieldH - 5f, textFieldH);
 			Rect updateButtonRect = new Rect(textFieldRect.xMax + 2f, textFieldRect.y, textFieldH, textFieldH);
-			
+
 			Widgets.Label(titleRect, "ZiT_ObjectsSeekerLabel".Translate());
 			if (Widgets.ButtonImageWithBG(updateButtonRect, ContentFinder<Texture2D>.Get("UI/Update Button", true)))
 			{
@@ -94,7 +94,7 @@ namespace ZiTools
 					catButtRect.y += catButtRect.height + 1f;
 				}
 			}
-			
+
 			Rect mainRect = new Rect(inRect) { yMin = textFieldRect.yMax, xMax = catButtRect.x };
 			if (!ODB.IsSelectedCategoryHaveObjects())
 			{
@@ -150,7 +150,7 @@ namespace ZiTools
 
 		public static void DrawWindow() => Find.WindowStack.Add(new ObjectSeeker_Window());
 
-		void DrawObjectsList(Rect inRect, DBUnit unit, ref DBUnit favChange, bool onlyLabel = false)
+		private void DrawObjectsList(Rect inRect, DBUnit unit, ref DBUnit favChange, bool onlyLabel = false)
 		{
 			string label = unit.Label;
 			string param = unit.Parameter;
@@ -160,10 +160,10 @@ namespace ZiTools
 			Rect rectLabel = new Rect(rectImage.xMax + 2f, inRect.y, inRect.width - 2 * rectImage.width - rectParam.width, inRect.height);
 			Rect rectFavButton = new Rect(rectImage) { x = rectParam.xMax };
 			Rect rectSearchButton = new Rect(inRect) { width = inRect.width - rectFavButton.width };
-			
+
 			Widgets.Label(rectLabel.LeftPartPixels(rectLabel.width), label);
 			Widgets.Label(rectParam.RightPartPixels(rectParam.width), param);
-			
+
 			if (!onlyLabel)
 			{
 				TooltipHandler.TipRegion(rectLabel, label);
@@ -188,14 +188,11 @@ namespace ZiTools
 					}
 				}
 				unit.Icon?.DrawIcon(rectImage);
-				if (Mouse.IsOver(rectFavButton) || ODB.UnitsInFavourites.Contains(unit))
+				if (Widgets.ButtonImage(rectFavButton.ScaledBy(0.85f), ODB.GetCategoryTexture(CategoryOfObjects.Favorites)))
 				{
-					if (Widgets.ButtonImage(rectFavButton.ScaledBy(0.85f), ODB.GetCategoryTexture(CategoryOfObjects.Favorites)))
-					{
-						favChange = unit;
-						SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
-					}
-				} 
+					favChange = unit;
+					SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
+				}
 			}
 		}
 	}
