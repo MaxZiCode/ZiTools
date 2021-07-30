@@ -40,7 +40,7 @@ namespace ZiTools
 				}
 				else
 				{
-					this.resolvedIcon = PortraitsCache.Get(pawn, new Vector2(ThingIconSize, ThingIconSize), default(Vector3), 1f);
+					this.resolvedIcon = PortraitsCache.Get(pawn, new Vector2(ThingIconSize, ThingIconSize), default);
 				}
 			}
 			else
