@@ -148,7 +148,11 @@ namespace ZiTools
 						thingToLoad = currentThing;
 						isMinified = false;
 					}
-					if (FillNewData<Building>(thingToLoad, CategoryOfObjects.Buildings, location, isMinified))
+                    if (currentThing.def.drawerType == DrawerType.None)
+                    {
+                        continue;
+                    }
+                    if (FillNewData<Building>(thingToLoad, CategoryOfObjects.Buildings, location, isMinified))
 						continue;
 
 					if (FillNewData<Plant>(thingToLoad, CategoryOfObjects.Plants, location, isMinified))
