@@ -17,12 +17,13 @@ More info by links below:
 ## Translations
 - English
 - Russian
-- German (by Prokho)
-- Simplified Chinese (by HawnHan)
+- German (by [Prokho](https://steamcommunity.com/profiles/76561198328842094/))
+- Simplified Chinese (by [HawnHan](https://github.com/HawnHan))
+- Spanish (by [Crusader](https://steamcommunity.com/profiles/76561197986639775))
 
 ## Credits
 - Why_is_that for the excellent BetterMiniMap mod.
-- Prokho and HawnHan for the translations.
+- Prokho, HawnHan and Crusader for the translations.
 
 <p align="center">
   <a href="https://github.com/pardeike/Harmony">
