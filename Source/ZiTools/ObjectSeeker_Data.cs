@@ -17,7 +17,7 @@ namespace ZiTools
 		public ObjectsDatabase()
 		{
 			_unitToSeek = null;
-			SelectedCategory = CategoryOfObjects.Favorites;
+			SelectedCategory = CategoryOfObjects.All;
 		}
 
 		DBUnit _unitToSeek;
