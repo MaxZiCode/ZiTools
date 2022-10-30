@@ -1,5 +1,5 @@
 # ZiTools
-[![RimWorld 1.3](https://img.shields.io/badge/Rimworld-1.3-red)](http://rimworldgame.com/)
+[![RimWorld 1.4](https://img.shields.io/badge/Rimworld-1.4-yellow)](http://rimworldgame.com/)
 [![MIT License](https://img.shields.io/badge/license-MIT-lightgray.svg?style=flat)](./LICENSE) 
 
 The tool that allow explore objects on a game map and quickly find them.
